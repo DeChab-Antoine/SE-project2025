@@ -68,6 +68,7 @@ public class BitPackingWithoutOverlap {
             
             // Écrire la val à partir d'offset
             out[w] |= (tab[i] & mask) << offset;
+            
         }
 	}
 	
