@@ -53,7 +53,7 @@ public abstract class BitPacking implements IPacking {
 	
 	// Méthodes que chaque variante doit fournir
 	protected abstract void createTabWords();          // doit le créer à la bonne taille 
-    protected abstract void writeValue(int idx, int v);
-    protected abstract int  readValue(int idx);
+    protected abstract void writeValue(int i, int val);
+    protected abstract int  readValue(int i);
 
 }

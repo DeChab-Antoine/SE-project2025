@@ -16,13 +16,13 @@ public class testBitPacking {
         System.out.println("Input (" + input.length + "): " + Arrays.toString(input));
 
         BitPackingWithoutOverlap bp = new BitPackingWithoutOverlap(input);
-        bp.compress();
+        bp.compress(input);
 
         // Hypothèse: getters présents (à ajouter si absents)
         int k = bp.getK();
-        int c = bp.getC();
-        int n = bp.getN_tab();
-        int[] words = bp.getOut();
+        int c = 32/k;
+        int n = bp.getTabInputLength();
+        int[] words = bp.getTabWords();
 
         System.out.println("k (bits/valeur) = " + k);
         System.out.println("c (valeurs par mot 32b) = " + c);
@@ -46,7 +46,8 @@ public class testBitPacking {
         }
 
         // Décompression & comparaison
-        int[] recon = bp.decompress();
+        int[] recon = new int[n];
+        bp.decompress(recon);
         boolean ok = Arrays.equals(input, recon);
         System.out.println("Decompress equals input? " + ok);
         if (!ok) {

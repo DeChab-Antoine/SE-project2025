@@ -14,7 +14,7 @@ final class BitOps {
     }
 
     
-    static void writeBits(int[] words, int indWord, int word, int offset, int k, int val) {
+    static void writeBits(int[] words, int indWord, int offset, int k, int val) {
     	words[indWord] |= (val & mask(k)) << offset; 
     }
 }
