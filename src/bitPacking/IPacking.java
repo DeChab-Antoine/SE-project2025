@@ -8,8 +8,7 @@ public interface IPacking {
     void decompress(int[] tabOutput);       // décompresse tabWords et place le résultat dans tabOutput
     
     // getters
-    int bitsPerValue();           			// k : le nombre de bits pour représenté un entier de tabInput
-    int capacityPerWord();        			// c : le nombre d'entier dans un mot (que withoutOverlap)
-    int tabInputLength();         			// taille du tabInput
-    int[] readTabWords();                	// permet la lecture du Tab compressé (tabWords)
+    int getK();           			// k : le nombre de bits pour représenté un entier de tabInput
+    int getTabInputLength();        // taille du tabInput
+    int[] getTabWords();            // permet la lecture du Tab compressé (tabWords)
 }
