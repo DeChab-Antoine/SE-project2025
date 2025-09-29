@@ -13,6 +13,15 @@ public abstract class BitPacking implements IPacking {
     }
     
     
+    protected static int computeK(int[] tab) {
+		int max = tab[0];
+		for (int val : tab) {
+			if (val > max) max = val;
+		}
+		
+		return (max == 0) ? 1 : (32 - Integer.numberOfLeadingZeros(max));
+	}
+    
     // Méthode Partagé
 	@Override
 	public void compress(int[] tabInput) {

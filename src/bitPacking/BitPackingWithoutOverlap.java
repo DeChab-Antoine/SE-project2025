@@ -4,21 +4,10 @@ public class BitPackingWithoutOverlap extends BitPacking {
 	private int c;
 	
 	public BitPackingWithoutOverlap(int[] tabInput) {
-		super(fixK(tabInput), tabInput.length);
-		this.c = 32 / k; // nb d'élem par mots
+		super(computeK(tabInput), tabInput.length);
+		this.c = 32 / k; // nb d'élem par mots : si k = 4, c = 8
 		// mask pour couper le mot : si max=8,k=4 alors mask => 1111
 	}
-	
-	
-	private static int fixK(int[] tab) {
-		int max = tab[0];
-		for (int val : tab) {
-			if (val > max) max = val;
-		}
-		
-		return (max == 0) ? 1 : (32 - Integer.numberOfLeadingZeros(max));
-	}
-	
 	
 	@Override
 	protected void createTabWords() {

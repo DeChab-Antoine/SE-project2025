@@ -8,13 +8,15 @@ final class BitOps {
         return (1 << k) - 1;
     }
 
+
+    static void writeBits(int[] words, int indWord, int offset, int k, int val) {
+    	words[indWord] |= (val & mask(k)) << offset; 
+    }
+    
     
     static int readBits(int word, int offset, int k) {
         return (word >>> offset) & mask(k);
     }
 
     
-    static void writeBits(int[] words, int indWord, int offset, int k, int val) {
-    	words[indWord] |= (val & mask(k)) << offset; 
-    }
 }
