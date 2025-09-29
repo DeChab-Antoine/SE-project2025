@@ -1,0 +1,99 @@
+Projet Génie Logiciel 2025
+
+Compression de données pour accélérer la transmission
+
+La transmission de tableaux d’entiers est l’un des problèmes centraux de l’internet.
+Dans ce projet, il vous est demandé d’étudier différents modes de transmission basés sur la compression d’entiers.
+L’idée est de compresser un tableau d’entiers afin d’avoir moins d’éléments à transmettre, puis de décompresser ces entiers après transmission.
+
+Nous voulons utiliser une méthode de compression qui ne perde pas l’accès direct aux éléments. Autrement dit, même après compression, nous devons pouvoir retrouver facilement le i-ème entier du tableau original.
+Vous devez donc implémenter une méthode de compression basée sur le nombre de bits utilisés, appelée Bit Packing.
+Ainsi, si chaque élément peut être représenté sur k bits, alors nous pouvons créer une représentation globale qui utilisera n × k bits au lieu de 32n bits si l’on utilise des entiers classiques.
+
+Classe BitPacking
+
+Vous devez implémenter la classe BitPacking qui réalise cette compression.
+Vous devez implémenter deux versions :
+    
+une qui peut écrire des entiers compressés sur deux entiers consécutifs,
+une qui ne doit pas écrire d’entiers compressés sur deux entiers consécutifs.
+Exemple (avec 12 bits nécessaires pour représenter 6 éléments)
+    •    Première représentation (avec chevauchement possible)
+    	•    le premier entier compressé sur les 12 premiers bits du premier entier de sortie,
+    	•    le deuxième entier compressé sur les 12 bits suivants du premier entier de sortie,
+    	•    le troisième entier compressé sur les bits 25 à 32 du premier entier de sortie et sur les 4 premiers bits du deuxième entier de sortie,
+    	•    le quatrième entier compressé sur les bits 5 à 16 du deuxième entier de sortie,
+    	•    le cinquième entier compressé sur les bits 17 à 28 du deuxième entier de sortie,
+    	•    le sixième entier compressé sur les bits 29 à 32 du deuxième entier de sortie et sur les 8 premiers bits du troisième entier de sortie.
+    •    Deuxième représentation (sans chevauchement)
+   	 •    le premier entier compressé sur les 12 premiers bits du premier entier de sortie,
+   	 •    le deuxième entier compressé sur les 12 bits suivants du premier entier de sortie,
+    	•    le troisième entier compressé sur les 12 premiers bits du deuxième entier de sortie,
+    	•    le quatrième entier compressé sur les 12 bits suivants du deuxième entier de sortie,
+    	•    le cinquième entier compressé sur les 12 premiers bits du troisième entier de sortie,
+    	•    le sixième entier compressé sur les 12 bits suivants du troisième entier de sortie.
+
+
+Fonctions à implémenter
+
+Pour chaque type de compression, vous devez implémenter :
+    •    compress(array) : compresse un tableau,
+    •    decompress(array) : décompresse et place le résultat dans le tableau passé en paramètre,
+    •    int get(int i) : retourne la valeur du i-ème entier dans le tableau compressé.
+
+Mesures de performance
+
+Vous devez mettre en place des mesures de temps d’exécution de chaque fonction.
+Il faut définir un protocole de mesure précis afin d’évaluer de manière fiable le temps d’exécution de chaque fonction.
+À partir de ces temps, vous devez calculer le temps de transmission pour une latence t, afin de déterminer à partir de quel seuil la compression devient intéressante.
+
+⸻
+
+Compression avec zones de débordement (overflow areas)
+
+Nous voulons maintenant réaliser une compression avec zones de débordement.
+
+En effet, si un seul nombre du tableau initial nécessite un grand nombre de bits k alors que les autres n’ont besoin que de k′ bits (k′ < k), il est coûteux de représenter tous les nombres avec k bits.
+
+Dans ce cas, on peut attribuer une valeur spéciale à un entier compressé, indiquant que la vraie valeur se trouve ailleurs, dans une zone de débordement.
+Exemple
+
+Pour encoder les nombres : 1, 2, 3, 1024, 4, 5, 2048
+    •    On peut encoder 1, 2, 3, 4, 5 sur 3 bits,
+    •    et mettre 1024 et 2048 dans une zone de débordement avec 11 bits chacun.
+
+Comme on veut garder l’accès direct, on doit précalculer le nombre d’entiers dans la zone de débordement et l’intégrer à notre encodage.
+
+Ici, nous avons 2 entiers dans la zone de débordement → cela nécessite 1 bit d’indication supplémentaire.
+    •    0-x → valeur directe,
+    •    1-y → pointeur vers la zone de débordement.
+
+La séquence :
+1, 2, 3, 1024, 4, 5, 2048
+sera encodée comme :
+0-1, 0-2, 0-3, 1-0, 0-4, 0-5, 1-1, 1024, 2048
+
+Factory
+
+Vous devez organiser votre code et créer une factory permettant de gérer la création du type de compression à partir d’un simple paramètre.
+
+⸻
+
+Benchmarks
+
+Vous devez inclure des benchmarks, en expliquant leur pertinence.
+
+⸻
+
+Contraintes du projet
+    •    Le projet doit être développé en Java ou Python (pas de notebook Jupyter).
+    •    Le projet doit être associé à un dépôt GitHub.
+    •    Le dépôt doit contenir :
+    •    une documentation en markdown expliquant comment utiliser le programme,
+    •    un rapport en PDF décrivant les problèmes, les solutions et les choix réalisés.
+    •    Date limite : 2 novembre 2025, 23h59 AoE.
+    •    L’adresse du dépôt GitHub doit être envoyée par email à JC Regin (jcregin@gmail.com) avant la date limite.
+    •    Sujet de l’email : SE github (uniquement).
+    •    Les noms des auteurs doivent apparaître dans le GitHub et dans le rapport.
+    •    Le projet est individuel, conçu, implémenté et documenté uniquement par l’auteur.
+    •    Une présentation orale peut être demandée pour compléter.
