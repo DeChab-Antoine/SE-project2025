@@ -70,25 +70,41 @@ Mot 2 : 0000 0000 0000 00/01 010/0 1001 /1001 0/001
 
 
 
-writeValue : i = 2 (val = 3)
+writeValue : i = 6 (val = 7)
 
-borne\_inf = (i\*k)%32 = (2\*5)% 32 = 10
 
-borne\_sup = borne\_inf + k = 10 + 5 = 15
+
+start = i\*k = 6 \* 5 = 30
+
+indWord = start / 32 = 30 / 32 = 0 
+
+borneInf = start%32 = 30%32 = 30 (offset)
+
+borne\_sup = borneInf + k = 30 + 5 = 35
+
+
 
 if borne\_sup <= 32
 
 then (cas sans débordement) :
 
- 	BitOps.writeBits(tabWords, i\*k/32, borne\_inf, k, val);
+ 	BitOps.writeBits(tabWords, indWord, borneInf, k, val);
 
 else (cas avec) :
 
-&nbsp;	val\_inf = val >>> k-(32-borne\_inf);
+&nbsp;	space = 32 - borneInf = 2 (k-space = 3)
 
-&nbsp;	val\_sup = val <<< borne\_sup- 32;
+ 	val\_inf = val \& ((1 << space) - 1) = 00111 \& (100 - 001) = 00111 \& 00011 = 00011
 
- 	BitOps.writeBits(tabWords, i\*k/32, borne\_inf, k-(32-borne\_inf), val\_inf);
+ 	val\_sup = val >>> space = 00111 >>> 2 = 00001 (décallage des bits à droite)
 
- 	BitOps.writeBits(tabWords, (i\*k/32)+1, 0, borne\_sup- 32, val\_sup);
+ 	BitOps.writeBits(tabWords,   indWord, borneInf,   space, val\_inf); ('11' sur 30 et 31)
+
+ 	BitOps.writeBits(tabWords, indWord+1,        0, k-space, val\_sup); ('001' sur 0 à 2)
+
+
+
+
+
+
 
