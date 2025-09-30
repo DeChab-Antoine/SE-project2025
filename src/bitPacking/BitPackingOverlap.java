@@ -2,7 +2,7 @@ package bitPacking;
 
 public class BitPackingOverlap extends BitPacking {
 
-	protected BitPackingOverlap(int[] tabInput) {
+	public BitPackingOverlap(int[] tabInput) {
 		super(computeK(tabInput), tabInput.length);
 	}
 

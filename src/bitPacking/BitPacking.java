@@ -45,7 +45,15 @@ public abstract class BitPacking implements IPacking {
 			tabOutput[i] = readValue(i);
 		}
 	}
-
+	
+	// Méthode pour les tests
+	public int getK() {
+		return k;
+	}
+	
+	public int getTabWordsLength() {
+		return tabWords.length;
+	}
 	
 	// Méthodes que chaque variante doit fournir
 	protected abstract void createTabWords();          // doit le créer à la bonne taille 
