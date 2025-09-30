@@ -14,6 +14,7 @@ public abstract class BitPacking implements IPacking {
     
     
     protected static int computeK(int[] tab) {
+    	if (tab.length == 0) return 1;
 		int max = tab[0];
 		for (int val : tab) {
 			if (val > max) max = val;
@@ -45,20 +46,6 @@ public abstract class BitPacking implements IPacking {
 		}
 	}
 
-	@Override
-	public int getK() {
-		return k;
-	}
-
-	@Override
-	public int getTabInputLength() {
-		return tabInputLength;
-	}
-
-	@Override
-	public int[] getTabWords() {
-		return tabWords;
-	}
 	
 	// Méthodes que chaque variante doit fournir
 	protected abstract void createTabWords();          // doit le créer à la bonne taille 
