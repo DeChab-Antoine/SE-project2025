@@ -1,31 +1,32 @@
 package bitPacking;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class BitPackingOverflow implements IPacking {
 
 	BitPacking bp; // Overlap or no
+	private int[] tabBase;
 	private int[] tabOverflow;
 	private int k; // le k de la base à fixer dans computeOptimumK
+	private int w; // largeur du slot dans la zone principale
+	private int over; // combien de valeurs dépassent k.
     private int tabInputLength;
-    
 	
 	public BitPackingOverflow(BitPacking bp) {
 		this.bp = bp;
 	}
 
-	private int[] getOverflowCount(int n, Map<Integer, Integer> map, int ko) {
+	private int[] getOverflowCount(Map<Integer, Integer> map, int ko) {
 		int[] overflowCount = new int[ko+1];
 		
 		// cumul inverse : partir de la fin et accumuler
 	    int cum = 0;
 	    for (int i = ko; i >= 0; i--) {
 	        // si la map contient des valeurs exactement de taille k, on ajoute leur fréquence au cumul
-	        if (map.containsKey(i + 1)) {
-	            cum += map.get(i + 1);
-	        }
+	        if (map.containsKey(i + 1)) cum += map.get(i + 1);
 	        overflowCount[i] = cum;
 	    }
 
@@ -41,42 +42,59 @@ public class BitPackingOverflow implements IPacking {
 		
 		int ko = 0; // le k de la zone d'overflow (k max)
 		for (int val : tab) {
-			int nbBits = 32 - Integer.numberOfLeadingZeros(val); // le nb de bits mini pour représenter la val (3 -> nbBits = 2)
+			int nbBits = BitOps.nbBits(val); // le nb de bits mini pour représenter la val (3 -> nbBits = 2)
 			if (nbBits > ko) ko = nbBits;
 			map.put(nbBits, map.getOrDefault(nbBits, 0) + 1);
 		}
 		
-		int n = tab.length;
-		int nbBitsTotalMini = (ko+1)*n; // pire cas
+		this.tabInputLength = tab.length;
+		int[] overflowCount = getOverflowCount(map, ko);
+		int nbBitsTotalMini = Integer.MAX_VALUE;
+		int bestK = 1;
 		
-		int[] overflowCount = getOverflowCount(n, map, ko);
-		
-		
-		for (Integer k: map.keySet()) {
-		    int over = overflowCount[k];
-		    int f = 32 - Integer.numberOfLeadingZeros(over);
-		    int w = 1 + ((k > f) ? k : f);
-		    int nbBitsTotal = n*w + over * ko;
-		    
-		    System.out.println("\n---- Candidat k'=" + k + " ----");
-		    System.out.println("overflowCount = " + over);
-		    System.out.println("f (bits index overflow) = " + f);
-		    System.out.println("w (taille slot) = " + w);
-		    System.out.println("nbBitsTotal = " + nbBitsTotal);
+		for (Integer candK: map.keySet()) {
+		    int over = overflowCount[candK];
+		    int f = BitOps.nbBits(over-1);
+		    int w = 1 + Math.max(candK, f);
+		    int nbBitsTotal = tabInputLength*w + over * ko;
 		    
 		    if (nbBitsTotal < nbBitsTotalMini) {
 		        nbBitsTotalMini = nbBitsTotal;
-		        this.k = k;
-		        System.out.println("=> Nouveau k optimum trouvé: " + k);
+		        bestK = candK;
+		        this.w = w;
+		        this.over = over;
 		    }
 		}
+		
+		this.k = bestK;
 	}
 	
 	
 	@Override
 	public void compress(int[] tabInput) {
-		// TODO Auto-generated method stub
-
+		this.tabBase = new int[tabInputLength];
+		this.tabOverflow = new int[over];
+		int iOver = 0;
+		for (int i = 0; i < tabInputLength; i++) {
+			int val = tabInput[i];
+			
+			if (BitOps.nbBits(val) <= k) {
+				tabBase[i] = val;
+			} else {
+				tabBase[i] = iOver + (1 << (w - 1));
+				tabOverflow[iOver] = val;
+				iOver++;
+			}
+			
+		}
+		
+		for (int e : tabBase) {
+			System.out.println(e);
+		}
+		
+		for (int e : tabOverflow) {
+			System.out.println(e);
+		}
 	}
 
 	

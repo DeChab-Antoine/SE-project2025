@@ -114,7 +114,7 @@ pour : 13 3 9 560 6 670 4 12
 
 
 
-13 3 9 6 4 12 -> se code sur 4 bits 
+13 3 9 6 4 12 -> se code sur 4 bits
 
 1101 0011 1001 0110 0100 1100
 
@@ -122,7 +122,7 @@ pour : 13 3 9 560 6 670 4 12
 
 560 670 -> se code sur 10 bits
 
-10 0011 0000  10 1001 1110 
+10 0011 0000  10 1001 1110
 
 
 
@@ -130,7 +130,7 @@ On utilise un flag 1 si le nombre est codé dans la zone de débordement, 0 sino
 
 
 
-donc on aura comme base : 
+donc on aura comme base :
 
 01101 00011 01001 10000 00110 10001 00100 01100
 
@@ -142,23 +142,23 @@ et comme overflow:
 
 
 
-si overlap: 
+si overlap:
 
-&nbsp;          1-1    0-6     1-0    0-9    0-3   0-13
+           1-1    0-6     1-0    0-9    0-3   0-13
 
 mot0: 00/10 001/0 0110 /1000 0/010 01/00 011/0 1101
 
-&nbsp;                                     0-12    0-4
+                                      0-12    0-4
 
 mot1: 0000 0000 0000 0000 0000 0000 /0110 0/001
 
-&nbsp;                           670         560
+                            670         560
 
 mot2: 0000 0000 0000 /1010 0111 10/10 0011 0000
 
 
 
-sans overlap: 
+sans overlap:
 
            1-1    0-6     1-0    0-9    0-3   0-13
 
@@ -166,7 +166,7 @@ mot0: 00/10 001/0 0110 /1000 0/010 01/00 011/0 1101
 
                                    0-12    0-4
 
-mot1: 0000 0000 0000 0000 0000 00/01 100/0 0100 
+mot1: 0000 0000 0000 0000 0000 00/01 100/0 0100
 
                             670         560
 
@@ -182,11 +182,11 @@ calculer k (base) = à définir et ko (overflow) = 10 (nbBitsMax)
 
 parcourir le tab et noté dans un dictionnaire trié
 
-val k: nb de fois 
+val k: nb de fois
 
 
 
-pour notre cas: 
+pour notre cas:
 
 4: 3 (13, 9, 12)
 
@@ -194,7 +194,11 @@ pour notre cas:
 
 3: 2 (6, 4)
 
-10: 2 (560, 670) 
+10: 2 (560, 670)
+
+
+
+classe dans un tab : \[8, 8, 7, 5, 2, 2, 2, 2, 2, 2, 0] (overflowCount)
 
 
 
@@ -202,7 +206,7 @@ donc on teste k = 4, 2, 3 avec ko = 10 à chaque fois puis on regarde si sans d�
 
 
 
-on calcule pour chaque cas: 
+on calcule pour chaque cas:
 
 si k = 4 (6), ko = 10 (2)
 
@@ -234,15 +238,11 @@ nbBitsTotal = 8\*4(base) + 5\*10 (overflow) = 32 + 50 = 82 bits
 
 
 
-Donc le cas retenu est k = 4 si zone de débordement 
+Donc le cas retenu est k = 4 si zone de débordement
 
 
 
 sinon k= 10 -> 10\*8 = 80 bits > 60 donc on doit bien choisir la zone de débordement
-
-
-
-
 
 
 

@@ -13,7 +13,7 @@ class BitPackingOverflowTest {
 
 	@Test
 	public void testSimple() {
-		int[] tab = {13, 9, 12, 3, 6, 4, 560, 670}; 
+		int[] tab = {13, 3, 9, 560, 6, 670, 4, 12}; 
 	    // histogramme attendu: 2→1, 3→2, 4→3, 10→2
 
 	    BitPackingOverflow c = new BitPackingOverflow(new BitPackingOverlap(tab));
@@ -24,6 +24,8 @@ class BitPackingOverflowTest {
 	    System.out.println("k optimum = " + c.getK());
 	 
 	    assertEquals(4, c.getK()); // optimum = k'=2, avec 1 valeur envoyée en overflow
+	    
+	    c.compress(tab);
 	}
 	
 	
@@ -49,5 +51,7 @@ class BitPackingOverflowTest {
 	    System.out.println("=== Résultat pour énorme tableau ===");
 	    System.out.println("n = " + n);
 	    System.out.println("k optimum choisi = " + c.getK());
+	    
+	    c.compress(tab);
 	}
 }

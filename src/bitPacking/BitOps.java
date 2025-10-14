@@ -19,4 +19,9 @@ final class BitOps {
     }
 
     
+    static int nbBits(int v) {
+    	if(v <= 1) return 1;
+    	return 32 - Integer.numberOfLeadingZeros(v);
+    		
+    }
 }
