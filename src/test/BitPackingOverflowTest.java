@@ -26,6 +26,10 @@ class BitPackingOverflowTest {
 	    assertEquals(4, c.getK()); // optimum = k'=2, avec 1 valeur envoyée en overflow
 	    
 	    c.compress(tab);
+		int[] out = new int[tab.length];
+		c.decompress(out);
+		
+		assertArrayEquals(tab, out);
 	}
 	
 	
@@ -53,5 +57,9 @@ class BitPackingOverflowTest {
 	    System.out.println("k optimum choisi = " + c.getK());
 	    
 	    c.compress(tab);
+		int[] out = new int[tab.length];
+		c.decompress(out);
+		
+		assertArrayEquals(tab, out);
 	}
 }

@@ -88,26 +88,32 @@ public class BitPackingOverflow implements IPacking {
 			
 		}
 		
-		for (int e : tabBase) {
-			System.out.println(e);
-		}
 		
-		for (int e : tabOverflow) {
-			System.out.println(e);
-		}
 	}
 
 	
 	@Override
 	public int get(int i) {
-		// TODO Auto-generated method stub
-		return 0;
+	    int maskValue = (1 << (w - 1)) - 1;
+	    
+	    int word = tabBase[i];
+	    int flag = word >>> (w - 1);
+	    int valueOrIndex = word & maskValue;
+
+	    if (flag == 0) {
+	        return valueOrIndex;  
+	    } else {
+	        return tabOverflow[valueOrIndex];
+	    }
 	}
+
 
 	
 	@Override
 	public void decompress(int[] tabOutput) {
-		// TODO Auto-generated method stub
+		for (int i = 0; i < tabInputLength; i++) {
+			tabOutput[i] = get(i);
+		}
 
 	}
 
