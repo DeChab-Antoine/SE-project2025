@@ -10,21 +10,23 @@ public class BitPackingOverflow implements IPacking {
 	BitPacking bp; // Overlap or no
 	private int[] tabBase;
 	private int[] tabOverflow;
-	private int k; // le k de la base à fixer dans computeOptimumK
-	private int w; // largeur du slot dans la zone principale
-	private int over; // combien de valeurs dépassent k.
+	
+	private int kPrime; // nb de bits pour les valeurs hors de la zone d'overflow et coder l'indice des valeurs en overflow
+	private int over; // nb de valeurs en overflow
+	private int w; // largeur d'un slot dans la base (tag + kPrime=
+	
     private int tabInputLength;
 	
 	public BitPackingOverflow(BitPacking bp) {
 		this.bp = bp;
 	}
 
-	private int[] getOverflowCount(Map<Integer, Integer> map, int ko) {
-		int[] overflowCount = new int[ko+1];
+	private int[] getOverflowCount(Map<Integer, Integer> map, int kOver) {
+		int[] overflowCount = new int[kOver + 1];
 		
 		// cumul inverse : partir de la fin et accumuler
 	    int cum = 0;
-	    for (int i = ko; i >= 0; i--) {
+	    for (int i = kOver; i >= 0; i--) {
 	        // si la map contient des valeurs exactement de taille k, on ajoute leur fréquence au cumul
 	        if (map.containsKey(i + 1)) cum += map.get(i + 1);
 	        overflowCount[i] = cum;
@@ -36,19 +38,18 @@ public class BitPackingOverflow implements IPacking {
 	
 	
 	
-	
 	public void computeOptimumK(int[] tab) {
 		Map<Integer, Integer> map = new TreeMap<>();
 		
-		int ko = 0; // le k de la zone d'overflow (k max)
+		int kOver = 0; // le k de la zone d'overflow (k max)
 		for (int val : tab) {
 			int nbBits = BitOps.nbBits(val); // le nb de bits mini pour représenter la val (3 -> nbBits = 2)
-			if (nbBits > ko) ko = nbBits;
+			kOver = Math.max(kOver, nbBits);
 			map.put(nbBits, map.getOrDefault(nbBits, 0) + 1);
 		}
 		
 		this.tabInputLength = tab.length;
-		int[] overflowCount = getOverflowCount(map, ko);
+		int[] overflowCount = getOverflowCount(map, kOver);
 		int nbBitsTotalMini = Integer.MAX_VALUE;
 		int bestK = 1;
 		
@@ -56,7 +57,7 @@ public class BitPackingOverflow implements IPacking {
 		    int over = overflowCount[candK];
 		    int f = BitOps.nbBits(over-1);
 		    int w = 1 + Math.max(candK, f);
-		    int nbBitsTotal = tabInputLength*w + over * ko;
+		    int nbBitsTotal = tabInputLength*w + over * kOver;
 		    
 		    if (nbBitsTotal < nbBitsTotalMini) {
 		        nbBitsTotalMini = nbBitsTotal;
@@ -66,7 +67,7 @@ public class BitPackingOverflow implements IPacking {
 		    }
 		}
 		
-		this.k = bestK;
+		this.kPrime = bestK;
 	}
 	
 	
@@ -78,7 +79,7 @@ public class BitPackingOverflow implements IPacking {
 		for (int i = 0; i < tabInputLength; i++) {
 			int val = tabInput[i];
 			
-			if (BitOps.nbBits(val) <= k) {
+			if (BitOps.nbBits(val) <= kPrime) {
 				tabBase[i] = val;
 			} else {
 				tabBase[i] = iOver + (1 << (w - 1));
@@ -118,7 +119,7 @@ public class BitPackingOverflow implements IPacking {
 	}
 
 	public int getK() {
-		return k;
+		return kPrime;
 	}
 
 }

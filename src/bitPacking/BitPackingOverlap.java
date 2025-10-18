@@ -20,7 +20,6 @@ public class BitPackingOverlap extends BitPacking {
 		int indWord = (int) start >>> 5; // indice du mot (/32)
 		int borneInf = (int) start & 31; // nb bits déjà écris dans le mot courant (% 32)
 		int borneSup = borneInf + k;
-				
 		if (borneSup <= 32) {
 			BitOps.writeBits(tabWords, indWord, borneInf, k, val);
 		} else {
