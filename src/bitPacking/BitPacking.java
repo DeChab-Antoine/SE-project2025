@@ -2,19 +2,19 @@ package bitPacking;
 
 public abstract class BitPacking implements IPacking {
 	
-	protected int k;
-    protected int tabInputLength;
+	protected final int k;
+    protected final int tabInputLength;
     protected int[] tabWords;
-    protected int[] tabInput;
     
     
-    protected BitPacking() {
-    	
+    protected BitPacking(int k, int tabInputLength) {
+        this.k = k;
+        this.tabInputLength = tabInputLength;
     }
     
     
-    protected int computeK(int[] tab) {
-    	if (tabInputLength == 0) return 1;
+    protected static int computeK(int[] tab) {
+    	if (tab.length == 0) return 1;
 		int max = tab[0];
 		for (int val : tab) {
 			if (val > max) max = val;

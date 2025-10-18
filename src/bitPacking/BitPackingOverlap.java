@@ -3,9 +3,7 @@ package bitPacking;
 public class BitPackingOverlap extends BitPacking {
 
 	public BitPackingOverlap(int[] tabInput) {
-		this.tabInput = tabInput;
-		this.tabInputLength = tabInput.length;
-		this.k = computeK(tabInput);
+		super(computeK(tabInput), tabInput.length);
 	}
 
 	@Override
@@ -49,6 +47,5 @@ public class BitPackingOverlap extends BitPacking {
 	        return low | (high << space);
 	    }
 	}
-	
 	
 }
