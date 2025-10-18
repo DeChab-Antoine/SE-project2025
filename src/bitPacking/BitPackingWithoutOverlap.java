@@ -4,7 +4,10 @@ public class BitPackingWithoutOverlap extends BitPacking {
 	private int c;
 	
 	public BitPackingWithoutOverlap(int[] tabInput) {
-		super(computeK(tabInput), tabInput.length);
+		this.tabInput = tabInput;
+		this.tabInputLength = tabInput.length;
+		this.k = computeK(tabInput);
+		
 		this.c = 32 / k; // nb d'élem par mots : si k = 4, c = 8
 		// mask pour couper le mot : si max=8,k=4 alors mask => 1111
 	}
