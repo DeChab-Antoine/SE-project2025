@@ -2,16 +2,25 @@ package bitPacking;
 
 public class BitPackingOverlap extends BitPacking {
 
+	// --- Chemin AUTO-K ---
 	public BitPackingOverlap(int[] tabInput) {
-		super(computeK(tabInput), tabInput.length);
+		super(computeK(tabInput)); // calcule k à partir du tableau
+		this.tabInputLength = tabInput.length;
+	}
+	
+	
+	// --- Chemin FIXED-K ---
+	public BitPackingOverlap(int length, int k) {
+		super(k); // k est déjà fixé par Overflow
+		this.tabInputLength = length;
 	}
 
 	@Override
-	protected void createTabWords() {
+	protected int[] createTabWords() {
 		long totalBits = (long) k * (long) tabInputLength; // calcule en 64 bits (long) éviter un overflow si tabInputLength proche de IntegerMaxValue
 		long tabWordsLength = (totalBits + 31L) >>> 5;
 		
-		this.tabWords = new int[(int) tabWordsLength];
+		return new int[(int) tabWordsLength];
 	}
 
 	@Override

@@ -3,16 +3,24 @@ package bitPacking;
 public class BitPackingWithoutOverlap extends BitPacking {
 	private int c;
 	
-	public BitPackingWithoutOverlap(int[] tabInput) {
-		super(computeK(tabInput), tabInput.length);
-		this.c = 32 / k; // nb d'élem par mots : si k = 4, c = 8
-		// mask pour couper le mot : si max=8,k=4 alors mask => 1111
-	}
+	// --- Chemin AUTO-K ---
+    public BitPackingWithoutOverlap(int[] tabInput) {
+        super(computeK(tabInput)); // calcule k à partir du tableau
+        this.tabInputLength = tabInput.length;
+        this.c = 32 / k;
+    }
+
+    // --- Chemin FIXED-K ---
+    public BitPackingWithoutOverlap(int length, int k) {
+        super(k); // k est déjà fixé par Overflow
+        this.tabInputLength = length;
+        this.c = 32 / k;
+    }
 	
 	@Override
-	protected void createTabWords() {
+	protected int[] createTabWords() {
 		int tabWordsLength = (tabInputLength + c - 1 ) / c;
-		this.tabWords = new int[tabWordsLength];
+		return new int[tabWordsLength];
 	}
 	
 	

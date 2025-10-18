@@ -2,22 +2,21 @@ package bitPacking;
 
 public abstract class BitPacking implements IPacking {
 	
-	protected final int k;
-    protected final int tabInputLength;
+	protected int k;
+    protected int tabInputLength;
     protected int[] tabWords;
     
     
-    protected BitPacking(int k, int tabInputLength) {
+    protected BitPacking(int k) {
         this.k = k;
-        this.tabInputLength = tabInputLength;
     }
     
     
-    protected static int computeK(int[] tab) {
-    	if (tab.length == 0) return 1;
-		int max = tab[0];
-		for (int val : tab) {
-			if (val > max) max = val;
+    protected static int computeK(int[] tabInput) {
+    	if (tabInput.length == 0) return 1;
+		int max = tabInput[0];
+		for (int val : tabInput) {
+			max = Math.max(max, val);
 		}
 		
 		return (max == 0) ? 1 : (32 - Integer.numberOfLeadingZeros(max));
@@ -26,7 +25,9 @@ public abstract class BitPacking implements IPacking {
     // Méthode Partagé
 	@Override
 	public void compress(int[] tabInput) {
-		createTabWords();
+		this.tabInputLength = tabInput.length;
+		this.tabWords = createTabWords();
+		
 		for (int i = 0; i < tabInputLength; i++) {
 			writeValue(i, tabInput[i]);
         }
@@ -51,12 +52,18 @@ public abstract class BitPacking implements IPacking {
 		return k;
 	}
 	
+	
+	public int[] getTabWords() {
+	    return tabWords;
+	}
+
+	
 	public int getTabWordsLength() {
 		return tabWords.length;
 	}
 	
 	// Méthodes que chaque variante doit fournir
-	protected abstract void createTabWords();          // doit le créer à la bonne taille 
+	protected abstract int[] createTabWords();          // doit le créer à la bonne taille 
     protected abstract void writeValue(int i, int val);
     protected abstract int  readValue(int i);
 
