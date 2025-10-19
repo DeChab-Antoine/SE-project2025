@@ -3,56 +3,56 @@ package main.core;
 public class BitPackingOverlap extends BitPacking {
 
 	// --- Chemin AUTO-K ---
-	public BitPackingOverlap(int[] tabInput) {
-		super(computeK(tabInput)); // calcule k à partir du tableau
-		this.tabInputLength = tabInput.length;
+	public BitPackingOverlap(int[] input) {
+		super(computeBitWidth(input)); // calcule k à partir du tableau
+		this.inputLength = input.length;
 	}
 	
 	
 	// --- Chemin FIXED-K ---
 	public BitPackingOverlap(int length, int k) {
 		super(k); // k est déjà fixé par Overflow
-		this.tabInputLength = length;
+		this.inputLength = length;
 	}
 
 	@Override
-	protected int[] createTabWords() {
-		long totalBits = (long) k * (long) tabInputLength; // calcule en 64 bits (long) éviter un overflow si tabInputLength proche de IntegerMaxValue
+	protected int[] createWords() {
+		long totalBits = (long) bitWidth * (long) inputLength; // calcule en 64 bits (long) éviter un overflow si tabInputLength proche de IntegerMaxValue
 		long tabWordsLength = (totalBits + 31L) >>> 5;
 		
 		return new int[(int) tabWordsLength];
 	}
 
 	@Override
-	protected void writeValue(int i, int val) {
-		long start = (long) i * (long) k; // numéro du bit où débuter à écrire
+	protected void writeSlot(int index, int value) {
+		long start = (long) index * (long) bitWidth; // numéro du bit où débuter à écrire
 		int indWord = (int) start >>> 5; // indice du mot (/32)
 		int borneInf = (int) start & 31; // nb bits déjà écris dans le mot courant (% 32)
-		int borneSup = borneInf + k;
+		int borneSup = borneInf + bitWidth;
 		if (borneSup <= 32) {
-			BitOps.writeBits(tabWords, indWord, borneInf, k, val);
+			BitOps.writeBits(words, indWord, borneInf, bitWidth, value);
 		} else {
 			int space = 32-borneInf;
-	        int lowVal = val & ((1 << space) - 1);
-	        int highVal = val >>> space;
-	        BitOps.writeBits(tabWords, indWord, borneInf, space, lowVal);
-	        BitOps.writeBits(tabWords, indWord+1, 0, k-space, highVal);
+	        int lowVal = value & ((1 << space) - 1);
+	        int highVal = value >>> space;
+	        BitOps.writeBits(words, indWord, borneInf, space, lowVal);
+	        BitOps.writeBits(words, indWord+1, 0, bitWidth - space, highVal);
 		}
 	}
 
 	@Override
-	protected int readValue(int i) {
-		long start = (long) i * (long) k; // numéro du bit où débuter à écrire
+	protected int readSlot(int index) {
+		long start = (long) index * (long) bitWidth; // numéro du bit où débuter à écrire
 		int indWord = (int) start >>> 5; // indice du mot (/32)
 		int borneInf = (int) start & 31; // nb bits déjà écris dans le mot courant (% 32)
-		int borneSup = borneInf + k;
+		int borneSup = borneInf + bitWidth;
 		
 	    if (borneSup <= 32) {
-	        return BitOps.readBits(tabWords[indWord], borneInf, k);
+	        return BitOps.readBits(words[indWord], borneInf, bitWidth);
 	    } else {
 	    	int space = 32-borneInf;
-	        int low  = BitOps.readBits(tabWords[indWord], borneInf, space);
-	        int high = BitOps.readBits(tabWords[indWord + 1], 0, k-space);
+	        int low  = BitOps.readBits(words[indWord], borneInf, space);
+	        int high = BitOps.readBits(words[indWord + 1], 0, bitWidth - space);
 	        return low | (high << space);
 	    }
 	}

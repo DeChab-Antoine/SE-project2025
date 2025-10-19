@@ -1,18 +1,46 @@
 package main.core;
 
+
+/**
+ * 
+ * Abstraction commune (Template Method) pour les variantes de Bit Packing.
+ * 
+ * Rôle : 
+ *  - Définir le squelette de la compression/décompression
+ *  - Calcul commun de bitWidth
+ *  - Déléguer la lecture/écriture d'un "slot" aux classes filles (Overlap et WithoutOverlap) via readSlot/writeSlot
+ *    
+ * Contrats : 
+ *  - compress(int[] input)    : Compresse le tableau d'entiers "input", après l'appel, le tableau d'entiers "words" contient la représentation compressée
+ *  - get(int index)           : Retourne la valeur du i-ème entier "index" dans le tableau compressé "words" (doit être en O(1))
+ *  - decompress(int[] output) : Reconstruit le tableau original "input", et place le résultat dans le tableau d'entiers output    
+ * 
+ * Variables : 
+ * - WORD_SIZE   : Taille d'un mot (taille "Integer" = 32)
+ * - bitWidth    : Nombre de bits par valeur (k) 
+ * - inputLength : Nombre d'éléments à compresser (taille du tab "input")
+ * - words       : Tableau compressée (composé de mots) 
+ * 
+ * */
+
 public abstract class BitPacking implements IPacking {
 	
-	protected int k;
-    protected int tabInputLength;
-    protected int[] tabWords;
+	protected static final int WORD_SIZE = 32;
+	protected int bitWidth;
+    protected int inputLength;
+    protected int[] words;
     
     
-    protected BitPacking(int k) {
-        this.k = k;
+    protected BitPacking(int bitWidth) {
+        this.bitWidth = bitWidth;
     }
     
     
-    protected static int computeK(int[] tabInput) {
+    /**
+     * Calcule la largeur minimale en bits "bitWidth" nécessaire pour représenter toutes les valeurs d’entrée
+     * Si l’entrée est vide, on retourne 1
+     */
+    protected static int computeBitWidth(int[] tabInput) {
     	if (tabInput.length == 0) return 1;
     	
 		int max = tabInput[0];
@@ -23,49 +51,75 @@ public abstract class BitPacking implements IPacking {
 		return BitOps.nbBits(max);
 	}
     
-    // Méthode Partagé
+    
+    // -------------------------
+    //  Méthodes du contrat API
+    // -------------------------
+
+    /** Alloue "words" via createWords() et écrit chaque valeur dans le bon "slot" via writeSlot() */
 	@Override
 	public void compress(int[] tabInput) {
 		
-		this.tabWords = createTabWords();
+		this.words = createWords();
 		
-		for (int i = 0; i < tabInputLength; i++) {
-			writeValue(i, tabInput[i]);
+		for (int i = 0; i < inputLength; i++) {
+			writeSlot(i, tabInput[i]);
         }
 	}
 
 	
+	/** retourne la valeur lu via readSlot() */
 	@Override
-	public int get(int i) {
-		return readValue(i);
+	public int get(int index) {
+		return readSlot(index);
 	}
-
 	
+	
+	/** décompresse dans output */
 	@Override
-	public void decompress(int[] tabOutput) {
-		for (int i = 0; i < tabInputLength; i++) {
-			tabOutput[i] = readValue(i);
+	public void decompress(int[] output) {
+		for (int i = 0; i < inputLength; i++) {
+			output[i] = readSlot(i);
 		}
 	}
 	
-	// Méthode pour les tests
-	public int getK() {
-		return k;
-	}
 	
 	
-	public int[] getTabWords() {
-	    return tabWords;
+	// -------------------------
+    //  Méthodes d'inspection (tests & debug)
+    // -------------------------
+	
+	
+	/** Getter de "bitWidth" */
+	public int getBitWidth() {
+		return bitWidth;
 	}
 
 	
-	public int getTabWordsLength() {
-		return tabWords.length;
+	/** Getter de "words" */
+	public int[] getWords() {
+	    return words;
 	}
 	
-	// Méthodes que chaque variante doit fournir
-	protected abstract int[] createTabWords();          // doit le créer à la bonne taille 
-    protected abstract void writeValue(int i, int val);
-    protected abstract int  readValue(int i);
+	
+	/** Retourne le nombre de mots compressés */
+	public int getWordsLength() {
+		return words.length;
+	}
+
+	
+	
+	// --------------------------------------------
+    //  Méthodes que chaque variante doit fournir
+    // --------------------------------------------
+	
+	/** Alloue le tableau words à la bonne taille */
+	protected abstract int[] createWords(); 
+	
+	/** Écrit la valeur "value" dans le tab "words" au slot "index" */
+    protected abstract void writeSlot(int index, int value);
+    
+    /** retourne la valeur lu dans le tab "words" au slot "index" */
+    protected abstract int readSlot(int index);
 
 }

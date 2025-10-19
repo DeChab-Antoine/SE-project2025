@@ -159,7 +159,7 @@ public class BitPackingOverflow implements IPacking {
 	public int getK() {
 		return kPrime;
 	}
-	
+	 
 	
 	/**
 	 * Affiche le contenu interne du BitPackingOverflow de façon lisible :
@@ -182,7 +182,7 @@ public class BitPackingOverflow implements IPacking {
 	    // --- Zone BASE ---
 	    if (bpBase != null) {
 	        System.out.println("\n--- Zone BASE ---");
-	        int[] baseWords = bpBase.getTabWords();
+	        int[] baseWords = bpBase.getWords();
 	        System.out.println("Mots 32 bits (" + baseWords.length + "):");
 	        for (int i = 0; i < baseWords.length; i++) {
 	            String bin = String.format("%32s", Integer.toBinaryString(baseWords[i])).replace(' ', '0');
@@ -201,7 +201,7 @@ public class BitPackingOverflow implements IPacking {
 	    // --- Zone OVERFLOW ---
 	    if (bpOver != null && over > 0) {
 	        System.out.println("\n--- Zone OVERFLOW ---");
-	        int[] overWords = bpOver.getTabWords();
+	        int[] overWords = bpOver.getWords();
 	        System.out.println("Mots 32 bits (" + overWords.length + "):");
 	        for (int i = 0; i < overWords.length; i++) {
 	            String bin = String.format("%32s", Integer.toBinaryString(overWords[i])).replace(' ', '0');
