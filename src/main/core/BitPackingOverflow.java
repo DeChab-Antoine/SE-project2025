@@ -1,9 +1,10 @@
-package bitPacking;
+package main.core;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import main.factory.BitPackingFactory;
+import main.model.Mode;
 
 public class BitPackingOverflow implements IPacking {
 

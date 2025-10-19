@@ -7,9 +7,9 @@ import java.util.Random;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import bitPacking.BitPackingOverflow;
-import bitPacking.Mode;
-import bitPacking.BitPacking;
+import main.model.Mode;
+import main.core.BitPackingOverflow;
+
 
 class BitPackingOverflowTest {
 

@@ -1,4 +1,4 @@
-package bitPacking;
+package main.core;
 
 final class BitOps {
 	static final int WORD_BITS = 32;

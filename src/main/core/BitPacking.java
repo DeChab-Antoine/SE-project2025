@@ -1,4 +1,4 @@
-package bitPacking;
+package main.core;
 
 public abstract class BitPacking implements IPacking {
 	
@@ -14,18 +14,19 @@ public abstract class BitPacking implements IPacking {
     
     protected static int computeK(int[] tabInput) {
     	if (tabInput.length == 0) return 1;
+    	
 		int max = tabInput[0];
 		for (int val : tabInput) {
 			max = Math.max(max, val);
 		}
 		
-		return (max == 0) ? 1 : (32 - Integer.numberOfLeadingZeros(max));
+		return BitOps.nbBits(max);
 	}
     
     // Méthode Partagé
 	@Override
 	public void compress(int[] tabInput) {
-		this.tabInputLength = tabInput.length;
+		
 		this.tabWords = createTabWords();
 		
 		for (int i = 0; i < tabInputLength; i++) {

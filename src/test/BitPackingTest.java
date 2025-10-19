@@ -6,9 +6,7 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import bitPacking.BitPackingWithoutOverlap;
-import bitPacking.BitPackingOverlap;
-import bitPacking.BitPacking;
+import main.core.*;
 
 class BitPackingTest {
 

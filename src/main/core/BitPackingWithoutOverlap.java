@@ -1,4 +1,4 @@
-package bitPacking;
+package main.core;
 
 public class BitPackingWithoutOverlap extends BitPacking {
 	private int c;
