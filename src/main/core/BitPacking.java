@@ -1,6 +1,5 @@
 package main.core;
 
-
 /**
  * 
  * Abstraction commune (Template Method) pour les variantes de Bit Packing.
@@ -12,23 +11,17 @@ package main.core;
  *    
  * Contrats : 
  *  - compress(int[] input)    : Compresse le tableau d'entiers "input", après l'appel, le tableau d'entiers "words" contient la représentation compressée
- *  - get(int index)           : Retourne la valeur du i-ème entier "index" dans le tableau compressé "words" (doit être en O(1))
+ *  - get(int i)               : Retourne la valeur du i-ème entier dans le tableau compressé "words" (doit être en O(1))
  *  - decompress(int[] output) : Reconstruit le tableau original "input", et place le résultat dans le tableau d'entiers output    
- * 
- * Variables : 
- * - WORD_SIZE   : Taille d'un mot (taille "Integer" = 32)
- * - bitWidth    : Nombre de bits par valeur (k) 
- * - inputLength : Nombre d'éléments à compresser (taille du tab "input")
- * - words       : Tableau compressée (composé de mots) 
  * 
  * */
 
 public abstract class BitPacking implements IPacking {
 	
-	protected static final int WORD_SIZE = 32;
-	protected int bitWidth;
-    protected int inputLength;
-    protected int[] words;
+	protected static final int WORD_SIZE = 32; // Taille d'un mot (taille "Integer" = 32)
+	protected int bitWidth;					   // Nombre de bits par valeur (k) (1 <= bitWidth <= WORD_SIZE)
+    protected int inputLength;				   // Nombre d'éléments à compresser (taille du tab "input") 
+    protected int[] words;					   // Tableau compressée (composé de mots) (null avant compress, !null après) 
     
     
     protected BitPacking(int bitWidth) {
@@ -40,11 +33,11 @@ public abstract class BitPacking implements IPacking {
      * Calcule la largeur minimale en bits "bitWidth" nécessaire pour représenter toutes les valeurs d’entrée
      * Si l’entrée est vide, on retourne 1
      */
-    protected static int computeBitWidth(int[] tabInput) {
-    	if (tabInput.length == 0) return 1;
+    protected static int computeBitWidth(int[] input) {
+    	if (input.length == 0) return 1;
     	
-		int max = tabInput[0];
-		for (int val : tabInput) {
+		int max = input[0];
+		for (int val : input) {
 			max = Math.max(max, val);
 		}
 		
@@ -56,26 +49,22 @@ public abstract class BitPacking implements IPacking {
     //  Méthodes du contrat API
     // -------------------------
 
-    /** Alloue "words" via createWords() et écrit chaque valeur dans le bon "slot" via writeSlot() */
 	@Override
-	public void compress(int[] tabInput) {
-		
+	public void compress(int[] input) {
 		this.words = createWords();
 		
 		for (int i = 0; i < inputLength; i++) {
-			writeSlot(i, tabInput[i]);
+			writeSlot(i, input[i]);
         }
 	}
 
 	
-	/** retourne la valeur lu via readSlot() */
 	@Override
-	public int get(int index) {
-		return readSlot(index);
+	public int get(int i) {
+		return readSlot(i);
 	}
 	
 	
-	/** décompresse dans output */
 	@Override
 	public void decompress(int[] output) {
 		for (int i = 0; i < inputLength; i++) {
@@ -84,11 +73,9 @@ public abstract class BitPacking implements IPacking {
 	}
 	
 	
-	
 	// -------------------------
     //  Méthodes d'inspection (tests & debug)
     // -------------------------
-	
 	
 	/** Getter de "bitWidth" */
 	public int getBitWidth() {
@@ -106,7 +93,6 @@ public abstract class BitPacking implements IPacking {
 	public int getWordsLength() {
 		return words.length;
 	}
-
 	
 	
 	// --------------------------------------------
@@ -117,9 +103,9 @@ public abstract class BitPacking implements IPacking {
 	protected abstract int[] createWords(); 
 	
 	/** Écrit la valeur "value" dans le tab "words" au slot "index" */
-    protected abstract void writeSlot(int index, int value);
+    protected abstract void writeSlot(int i, int value);
     
     /** retourne la valeur lu dans le tab "words" au slot "index" */
-    protected abstract int readSlot(int index);
+    protected abstract int readSlot(int i);
 
 }
