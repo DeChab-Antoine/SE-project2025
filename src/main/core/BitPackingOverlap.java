@@ -1,12 +1,12 @@
 package main.core;
 
 /**
- * Variante BitPacking avec chevauchement (overlap).
+ * Variante BitPacking avec chevauchement (overlap)
  *
  * Principe :
- *  - Les valeurs sont écrites les unes après les autres dans un flux de bits continu.
- *  - Un slot de k bits peut commencer en fin de mot et se terminer dans le mot suivant.
- *  - On adresse les bits par "position absolue" : bitPos = index * bitWidth.
+ *  - Les valeurs sont écrites les unes après les autres dans un flux de bits continu
+ *  - Un slot de bitWidth bits peut commencer en fin de mot et se terminer dans le mot suivant
+ *  - On adresse les bits par "position absolue" : bitPos = index * bitWidth
  *
  */
 
@@ -16,16 +16,16 @@ public class BitPackingOverlap extends BitPacking {
     //  Constructeurs
     // -------------------------
 	
-    /** Chemin AUTO : calcule bitWidth à partir du contenu et fige inputLength. */
+    /** Chemin AUTO : calcule bitWidth à partir de "input" */
 	public BitPackingOverlap(int[] input) {
-		super(computeBitWidth(input)); // calcule k à partir du tableau
+		super(computeBitWidth(input));
 		this.inputLength = input.length;
 	}
 	
 	
-    /** Chemin FIXED : longueur + bitWidth imposés (utile avec Overflow). */
-	public BitPackingOverlap(int length, int k) {
-		super(k); // k est déjà fixé par Overflow
+    /** Chemin FIXED : bitWidth imposés (Overflow) */
+	public BitPackingOverlap(int length, int bitWidth) {
+		super(bitWidth);
 		this.inputLength = length;
 	}
 
@@ -43,56 +43,62 @@ public class BitPackingOverlap extends BitPacking {
 		
 		return new int[(int) wordsLength];
 	}
-
+	
+	
 	/** Écrit la valeur "value" dans le tab "words" au slot "index" */
 	@Override
 	protected void writeSlot(int i, int value) {
-		// Calcul des paramètres pour l'écriture en bits 
-		int bitPos    = i * bitWidth;                // numéro du bit où débuter à écrire
-		int wordIndex = bitPos / WORD_SIZE;          // indice du mot 
-		int bitOffset = bitPos % WORD_SIZE;          // nb bits déjà écris dans le mot courant 
+		// Position absolue en bits
+		int bitPos     = i * bitWidth;      
+		int wordIndex  = bitPos / WORD_SIZE;
+		int bitWordPos = bitPos % WORD_SIZE; 
 		
-        int remainingInWord = WORD_SIZE - bitOffset; // nb bits restants dans le mot
-		
-		if (remainingInWord >= 32) {
+		if (bitWordPos + bitWidth <= WORD_SIZE) {
             // Cas simple : tout tient dans le mot courant
-			BitOps.writeBits(words, wordIndex, bitOffset, bitWidth, value);
+			BitOps.writeBits(words, wordIndex, bitWordPos, bitWidth, value);
 		} else {
 			// Cas chevauchant :
-            int lowerPartValue = value & BitOps.mask(remainingInWord); // partie basse dans le mot courant
-            int upperPartValue = value >>> remainingInWord;            // partie haute pour le mot suivant
+			
+			// découpage du nombre de bits
+			int lowerBits = WORD_SIZE - bitWordPos; 
+            int upperBits = bitWidth - lowerBits; 
+		    
+            // découpage de la valeur
+            int lowerPartValue = value & BitOps.mask(lowerBits); 
+            int upperPartValue = value >>> lowerBits;           
 
-            // On écrit une partie en fin de mot courant
-            BitOps.writeBits(words, wordIndex, bitOffset, remainingInWord, lowerPartValue);
-            
-            // puis le reste au début du mot suivant
-            BitOps.writeBits(words, wordIndex + 1, 0, bitWidth - remainingInWord, upperPartValue);
+            // écriture
+            BitOps.writeBits(words, wordIndex, bitWordPos, lowerBits, lowerPartValue);
+            BitOps.writeBits(words, wordIndex + 1, 0, upperBits, upperPartValue);
 		}
 	}
 
+	
     /** retourne la valeur lu dans le tab "words" au slot "index" */
 	@Override
 	protected int readSlot(int i) {
-		// Calcul des paramètres pour la lecture en bits 
-		int bitPos    = i * bitWidth;                // numéro du bit où débuter à lire
-		int wordIndex = bitPos / WORD_SIZE;          // indice du mot 
-		int bitOffset = bitPos % WORD_SIZE;          // nb bits déjà écris dans le mot courant 
+		// Position absolue en bits
+		int bitPos     = i * bitWidth;       
+		int wordIndex  = bitPos / WORD_SIZE; 
+		int bitWordPos = bitPos % WORD_SIZE; 
 		
-		int remainingInWord = WORD_SIZE - bitOffset;
-		
-	    if (remainingInWord >= 32) {
+	    if (bitWordPos + bitWidth <= WORD_SIZE) {
 	    	// Cas simple : tout tient dans le mot courant
-	        return BitOps.readBits(words[wordIndex], bitOffset, bitWidth);
+	        return BitOps.readBits(words[wordIndex], bitWordPos, bitWidth);
 	    } else {
 	    	// Cas chevauchant :
-	    	// On lit une partie en fin de mot courant
-	        int lowerPartValue = BitOps.readBits(words[wordIndex], bitOffset, remainingInWord);
+
+	    	// découpage
+			int lowerBits = WORD_SIZE - bitWordPos; 
+            int upperBits = bitWidth - lowerBits; 
+            
+            // lecture
+	        int lowerPartValue = BitOps.readBits(words[wordIndex], bitWordPos, lowerBits);
+	        int upperPartValue = BitOps.readBits(words[wordIndex + 1], 0, upperBits);
 	        
-            // puis le reste au début du mot suivant
-	        int upperPartValue = BitOps.readBits(words[wordIndex + 1], 0, bitWidth - remainingInWord);
+	        // regroupage 
+	        int value = lowerPartValue | (upperPartValue << lowerBits);
 	        
-	        // On compacte la partie basse et haute, et on retourne la valeur 
-	        int value = lowerPartValue | (upperPartValue << remainingInWord);
 	        return value;
 	    }
 	}

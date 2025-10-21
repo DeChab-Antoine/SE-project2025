@@ -1,49 +1,84 @@
 package main.core;
 
+/**
+ * Variante BitPacking sans chevauchement (without overlap)
+ *
+ * Principe :
+ *  - Les valeurs sont écrites pour tenir dans un unique mot
+ *  - Un slot de bitWidth bits commence et se terminer dans le même mot
+ *  - On adresse les bits par "position absolue" : bitPos = index * bitWidth
+ *  - Un mot contient nbSlotPerWord = WORD_SIZE / bitWidth slots
+ */
+
 public class BitPackingWithoutOverlap extends BitPacking {
-	private int c;
+	private int nbSlotPerWord;
 	
-	// --- Chemin AUTO-K ---
+	// -------------------------
+    //  Constructeurs
+    // -------------------------
+	
+    /** Chemin AUTO : calcule bitWidth à partir de "input" */
     public BitPackingWithoutOverlap(int[] tabInput) {
-        super(computeBitWidth(tabInput)); // calcule k à partir du tableau
+        super(computeBitWidth(tabInput));
         this.inputLength = tabInput.length;
-        this.c = 32 / bitWidth;
+        this.nbSlotPerWord = WORD_SIZE / bitWidth;
     }
 
-    // --- Chemin FIXED-K ---
-    public BitPackingWithoutOverlap(int length, int k) {
-        super(k); // k est déjà fixé par Overflow
+    /** Chemin FIXED : bitWidth imposés (Overflow). */
+    public BitPackingWithoutOverlap(int length, int bitWidth) {
+        super(bitWidth); 
         this.inputLength = length;
-        this.c = 32 / k;
+        this.nbSlotPerWord = WORD_SIZE / bitWidth;
     }
 	
+    
+    // -------------------------
+    //  Hooks (implémentations)
+    // -------------------------
+    
+    /** Alloue le tableau words à la bonne taille */
 	@Override
 	protected int[] createWords() {
-		int tabWordsLength = (inputLength + c - 1 ) / c;
-		return new int[tabWordsLength];
+		int wordsLength = (inputLength + nbSlotPerWord - 1 ) / nbSlotPerWord;
+		return new int[wordsLength];
 	}
 	
 	
+	/** Écrit la valeur "value" dans le tab "words" au slot "index" */
 	@Override
-	protected void writeSlot(int index, int val) {
-		int indWord = index / c;             // ind du mot 
-        int pos = index % c;                   // rang dans ce mot
-        int offset = pos * bitWidth;              // décalage en bits 
+	protected void writeSlot(int i, int value) {
+		// Position absolue en bits
+		SlotPosition pos = new SlotPosition(nbSlotPerWord, bitWidth, i);
         
-        BitOps.writeBits(words, indWord, offset, bitWidth, val);
+        BitOps.writeBits(words, pos.wordIndex, pos.offset, bitWidth, value);
 	}
 	
 	
+    /** retourne la valeur lu dans le tab "words" au slot "index" */
 	@Override
     protected int readSlot(int i) {
-		int indWord = i / c;             // ind du mot 
-        int pos = i % c;                   // rang dans ce mot
-        int offset = pos * bitWidth;              // décalage en bits
+		// Position absolue en bits
+		SlotPosition pos = new SlotPosition(nbSlotPerWord, bitWidth, i);
         
-        return BitOps.readBits(words[indWord], offset, bitWidth);    
+        return BitOps.readBits(words[pos.wordIndex], pos.offset, bitWidth);    
     }
     
 
-	
+	// -------------------------
+    //  Classe utilitaire interne
+    // -------------------------
+
+    /** Structure représentant la position d’un slot dans le tableau de mots. */
+    private static class SlotPosition {
+        final int wordIndex;   
+        final int bitWordPos;
+        final int offset;
+        
+        SlotPosition(int nbSlotPerWord, int bitWidth, int i) {
+            this.wordIndex  = i / nbSlotPerWord;
+            this.bitWordPos = i % nbSlotPerWord;
+            this.offset     = bitWordPos * bitWidth;
+        }
+    }
 	
 }
