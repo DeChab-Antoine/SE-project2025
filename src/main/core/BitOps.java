@@ -11,21 +11,21 @@ package main.core;
 
 final class BitOps {
 	
-	/** Retourne un masque de "bitWidth" bits à 1 (ex: bitWidth=3 → 0b111) */
-    static int mask(int bitWidth) {
-        return (1 << bitWidth) - 1;
+	/** Retourne un masque de "k" bits à 1 (ex: k=3 → 0b111) */
+    static int mask(int k) {
+        return (1 << k) - 1;
     }
 
 
-    /** Écrit la valeur "value" sur "bitWidth" bits dans le mot "words[wordIndex]", à partir de "bitWordPos" */
-    static void writeBits(int[] words, int wordIndex, int bitWordPos, int bitWidth, int value) {
-    	words[wordIndex] |= (value & mask(bitWidth)) << bitWordPos; 
+    /** Écrit la valeur "value" sur "k" bits dans le mot "words[wordIndex]", à partir de "bitWordPos" */
+    static void writeBits(int[] words, int wordIndex, int bitWordPos, int k, int value) {
+    	words[wordIndex] |= (value & mask(k)) << bitWordPos; 
     }
     
     
-    /** Lit une valeur sur "bitWidth" bits dans "word", à partir du décalage "bitWordPos" */
-    static int readBits(int word, int bitWordPos, int bitWidth) {
-        return (word >>> bitWordPos) & mask(bitWidth);
+    /** Lit une valeur sur "k" bits dans "word", à partir du décalage "bitWordPos" */
+    static int readBits(int word, int bitWordPos, int k) {
+        return (word >>> bitWordPos) & mask(k);
     }
 
     

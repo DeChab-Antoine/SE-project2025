@@ -5,9 +5,9 @@ package main.core;
  *
  * Principe :
  *  - Les valeurs sont écrites pour tenir dans un unique mot
- *  - Un slot de bitWidth bits commence et se terminer dans le même mot
- *  - On adresse les bits par "position absolue" : bitPos = index * bitWidth
- *  - Un mot contient nbSlotPerWord = WORD_SIZE / bitWidth slots
+ *  - Un slot de k bits commence et se terminer dans le même mot
+ *  - On adresse les bits par "position absolue" : bitPos = index * k
+ *  - Un mot contient nbSlotPerWord = WORD_SIZE / k slots
  */
 
 public class BitPackingWithoutOverlap extends BitPacking {
@@ -17,18 +17,18 @@ public class BitPackingWithoutOverlap extends BitPacking {
     //  Constructeurs
     // -------------------------
 	
-    /** Chemin AUTO : calcule bitWidth à partir de "input" */
+    /** Chemin AUTO : calcule k à partir de "input" */
     public BitPackingWithoutOverlap(int[] tabInput) {
-        super(computeBitWidth(tabInput));
+        super(computeK(tabInput));
         this.inputLength = tabInput.length;
-        this.nbSlotPerWord = WORD_SIZE / bitWidth;
+        this.nbSlotPerWord = WORD_SIZE / k;
     }
 
-    /** Chemin FIXED : bitWidth imposés (Overflow). */
-    public BitPackingWithoutOverlap(int length, int bitWidth) {
-        super(bitWidth); 
+    /** Chemin FIXED : k imposés (Overflow). */
+    public BitPackingWithoutOverlap(int length, int k) {
+        super(k); 
         this.inputLength = length;
-        this.nbSlotPerWord = WORD_SIZE / bitWidth;
+        this.nbSlotPerWord = WORD_SIZE / k;
     }
 	
     
@@ -38,7 +38,7 @@ public class BitPackingWithoutOverlap extends BitPacking {
     
     /** Alloue le tableau words à la bonne taille */
 	@Override
-	protected int[] createWords() {
+	protected int[] allocateWords() {
 		int wordsLength = (inputLength + nbSlotPerWord - 1 ) / nbSlotPerWord;
 		return new int[wordsLength];
 	}
@@ -48,9 +48,9 @@ public class BitPackingWithoutOverlap extends BitPacking {
 	@Override
 	protected void writeSlot(int i, int value) {
 		// Position absolue en bits
-		SlotPosition pos = new SlotPosition(nbSlotPerWord, bitWidth, i);
+		SlotPosition pos = new SlotPosition(nbSlotPerWord, k, i);
         
-        BitOps.writeBits(words, pos.wordIndex, pos.offset, bitWidth, value);
+        BitOps.writeBits(words, pos.wordIndex, pos.offset, k, value);
 	}
 	
 	
@@ -58,9 +58,9 @@ public class BitPackingWithoutOverlap extends BitPacking {
 	@Override
     protected int readSlot(int i) {
 		// Position absolue en bits
-		SlotPosition pos = new SlotPosition(nbSlotPerWord, bitWidth, i);
+		SlotPosition pos = new SlotPosition(nbSlotPerWord, k, i);
         
-        return BitOps.readBits(words[pos.wordIndex], pos.offset, bitWidth);    
+        return BitOps.readBits(words[pos.wordIndex], pos.offset, k);    
     }
     
 
@@ -74,10 +74,10 @@ public class BitPackingWithoutOverlap extends BitPacking {
         final int bitWordPos;
         final int offset;
         
-        SlotPosition(int nbSlotPerWord, int bitWidth, int i) {
-            this.wordIndex  = i / nbSlotPerWord;
+        SlotPosition(int nbSlotPerWord, int k, int i) {
+            this.wordIndex = i / nbSlotPerWord;
             this.bitWordPos = i % nbSlotPerWord;
-            this.offset     = bitWordPos * bitWidth;
+            this.offset = bitWordPos * k;
         }
     }
 	

@@ -5,8 +5,8 @@ package main.core;
  *
  * Principe :
  *  - Les valeurs sont écrites les unes après les autres dans un flux de bits continu
- *  - Un slot de bitWidth bits peut commencer en fin de mot et se terminer dans le mot suivant
- *  - On adresse les bits par "position absolue" : bitPos = index * bitWidth
+ *  - Un slot de k bits peut commencer en fin de mot et se terminer dans le mot suivant
+ *  - On adresse les bits par "position absolue" : bitPos = index * k
  *
  */
 
@@ -16,16 +16,16 @@ public class BitPackingOverlap extends BitPacking {
     //  Constructeurs
     // -------------------------
 	
-    /** Chemin AUTO : calcule bitWidth à partir de "input" */
+    /** Chemin AUTO : calcule k à partir de "input" */
 	public BitPackingOverlap(int[] input) {
-		super(computeBitWidth(input));
+		super(computeK(input));
 		this.inputLength = input.length;
 	}
 	
 	
-    /** Chemin FIXED : bitWidth imposés (Overflow) */
-	public BitPackingOverlap(int length, int bitWidth) {
-		super(bitWidth);
+    /** Chemin FIXED : k imposés (Overflow) */
+	public BitPackingOverlap(int length, int k) {
+		super(k);
 		this.inputLength = length;
 	}
 
@@ -36,9 +36,9 @@ public class BitPackingOverlap extends BitPacking {
 	
 	/** Alloue le tableau words à la bonne taille */
 	@Override
-	protected int[] createWords() {
+	protected int[] allocateWords() {
 		// calcule en 64 bits (long) éviter un overflow si tabInputLength proche de IntegerMaxValue
-		long bitsTotal  = (long) bitWidth * (long) inputLength; 
+		long bitsTotal = (long) k * (long) inputLength; 
 		int wordsLength = (int) ((bitsTotal + WORD_SIZE - 1) / WORD_SIZE);
 		
 		return new int[(int) wordsLength];
@@ -49,19 +49,19 @@ public class BitPackingOverlap extends BitPacking {
 	@Override
 	protected void writeSlot(int i, int value) {
 		// Position absolue en bits
-		int bitPos     = i * bitWidth;      
-		int wordIndex  = bitPos / WORD_SIZE;
+		int bitPos = i * k;      
+		int wordIndex = bitPos / WORD_SIZE;
 		int bitWordPos = bitPos % WORD_SIZE; 
 		
-		if (bitWordPos + bitWidth <= WORD_SIZE) {
+		if (bitWordPos + k <= WORD_SIZE) {
             // Cas simple : tout tient dans le mot courant
-			BitOps.writeBits(words, wordIndex, bitWordPos, bitWidth, value);
+			BitOps.writeBits(words, wordIndex, bitWordPos, k, value);
 		} else {
 			// Cas chevauchant :
 			
 			// découpage du nombre de bits
 			int lowerBits = WORD_SIZE - bitWordPos; 
-            int upperBits = bitWidth - lowerBits; 
+            int upperBits = k - lowerBits; 
 		    
             // découpage de la valeur
             int lowerPartValue = value & BitOps.mask(lowerBits); 
@@ -78,19 +78,19 @@ public class BitPackingOverlap extends BitPacking {
 	@Override
 	protected int readSlot(int i) {
 		// Position absolue en bits
-		int bitPos     = i * bitWidth;       
-		int wordIndex  = bitPos / WORD_SIZE; 
+		int bitPos = i * k;       
+		int wordIndex = bitPos / WORD_SIZE; 
 		int bitWordPos = bitPos % WORD_SIZE; 
 		
-	    if (bitWordPos + bitWidth <= WORD_SIZE) {
+	    if (bitWordPos + k <= WORD_SIZE) {
 	    	// Cas simple : tout tient dans le mot courant
-	        return BitOps.readBits(words[wordIndex], bitWordPos, bitWidth);
+	        return BitOps.readBits(words[wordIndex], bitWordPos, k);
 	    } else {
 	    	// Cas chevauchant :
 
 	    	// découpage
 			int lowerBits = WORD_SIZE - bitWordPos; 
-            int upperBits = bitWidth - lowerBits; 
+            int upperBits = k - lowerBits; 
             
             // lecture
 	        int lowerPartValue = BitOps.readBits(words[wordIndex], bitWordPos, lowerBits);

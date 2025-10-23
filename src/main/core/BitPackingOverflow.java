@@ -1,141 +1,189 @@
 package main.core;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import main.factory.BitPackingFactory;
 import main.model.Mode;
 
+/**
+ * Variante BitPacking avec overflow (base + zone d’overflow)
+ *
+ * Principe :
+ *  - Les valeurs ≤ k sont stockées dans la zone BASE (flag=0 | value)
+ *  - Les valeurs > k sont envoyées dans OVERFLOW (flag=1 | index)
+ *  - Compress/Decrompress/Get via une variante de bitPacking choisit via l'enum "mode"
+ *
+ */
+
 public class BitPackingOverflow implements IPacking {
 
-	// --- Bit packers ---
-	private BitPacking bpBase;    // base area (w bits)
-    private BitPacking bpOver;    // overflow area (kOver bits)
-	
-    // --- Paramétrage ---
-	private int kPrime; // nb de bits pour les valeurs hors de la zone d'overflow et coder l'indice des valeurs en overflow
-	private int over; // nb de valeurs en overflow
-	private int w; // largeur d'un slot dans la base (tag + kPrime)
-	private int kOver; 
-	
-    private int tabInputLength;
-    
+	// --- Paramètres ---
+	private int k;          	 // nb de bits pour coder les valeurs ou l'indice (pour la zone base)
+	private int kOver;      	 // nb de bits max (pour la zone overflow)
+	private int slotLength;  	// largeur d'un slot dans la base 
+	private int overflowCount;	// nb de valeurs en overflow
+	private int inputLength; 
     private Mode mode;
+	
+	
+	// --- Bit packers ---
+	private BitPacking bpBase;
+    private BitPacking bpOver; 
+	
     
     // --- Flux bruts (avant bit-packing) ---
-    private int[] tabBase; // taille n, chaque mot sur w bits significatifs
-	private int[] tabOverflow; // taille over, chaque mot sur kOver bits 
+    private int[] base;     // taille inputLength, chaque mot sur w bits significatifs
+	private int[] overflow; // taille over, chaque mot sur kOver bits 
     
 	
-	public BitPackingOverflow(Mode mode, int[] tabInput) {
+	// -------------------------
+	//  Constructeurs
+	// -------------------------
+	
+	
+	public BitPackingOverflow(Mode mode, int[] input) {
 		this.mode = mode;
+		this.inputLength = input.length;
 	}
 	
 	
-	public BitPacking getBpBase() {
-	    return bpBase;
-	}
+	// -------------------------
+	//  Calcul du k optimum
+	// -------------------------
 
 	
-	public BitPacking getBpOver() {
-	    return bpOver;
-	}
-
-	
-	public int getOverCount() {
-	    return over;
-	}
-	
-	
-	public int getKOver() { return kOver; }
-	public int getW() { return w; }
-
-
-	private int[] getOverflowCount(Map<Integer, Integer> map, int kOver) {
-		int[] overflowCount = new int[kOver + 1];
-		
-		// cumul inverse : partir de la fin et accumuler
-	    int cum = 0;
-	    for (int i = kOver; i >= 0; i--) {
-	        // si la map contient des valeurs exactement de taille k, on ajoute leur fréquence au cumul
-	        if (map.containsKey(i + 1)) cum += map.get(i + 1);
-	        overflowCount[i] = cum;
+	/** Remplit freqBits[k] (si freqBits[2] = 4 -> 4 valeurs sur 2 bits) et retourne kMax */
+	private static int buildFreqBitsAndGetKMax(int[] tab, int[] freqBits) {
+		int kMax = 1;
+		for (int v : tab) {	
+	    	int k = BitOps.nbBits(v);
+	    	freqBits[k]++;
+	    	if (k > kMax) kMax = k;
 	    }
-
-	    return overflowCount;
+		
+		return kMax;
 	}
 	
 	
+	/**
+	 *  - on part d’un tableau de fréquences par taille de bits, puis cumul suffixe
+	 *  - overflowCount[k] = nb d'éléments dont nbBits(val) > k
+	 */
+	private static int[] buildOverflowCountByK(int[] freqBits, int kMax) {
+	    int[] overflowCountByK = new int[kMax + 1];
+	    int cum = 0;
+	    for (int k = kMax; k >= 0; k--) {
+	        if (k + 1 <= kMax) cum += freqBits[k + 1];
+	        overflowCountByK[k] = cum;
+	    }
+	    
+	    return overflowCountByK;
+	}
 	
 	
+	/** Calculer la taille du slot pour un k et un nombre de valeur en overflow "over" */
+	private static int computeSlotLength(int k, int over) {
+		int f = BitOps.nbBits(over - 1); // nb bits pour coder les indices des valeurs en overflow
+		int slotLength = 1 + Math.max(k, f);
+		
+		return slotLength;
+	}
+	
+	
+
+	/** Applique les paramètres pour le meilleur k trouvés */
+	private void applyBest(int kMax, int bestK, int bestOverflowCount) {
+		this.kOver = kMax;
+		this.k = bestK;
+        this.overflowCount = bestOverflowCount;
+        this.slotLength = computeSlotLength(bestK, bestOverflowCount);
+        
+	}
+	
+	
+	/**
+	 * 	choisir k qui minimise : nbBitsTotal = inputLength * slotLength + over * kOver
+	 *  avec : 
+	 *  - slotLength = 1 + max(k, f) 
+	 *  - f = nbBits(over-1) 
+	 *  
+	 *  fixe k, kOver, slotLength, overflowCount
+	 */
 	public void computeOptimumK(int[] tab) {
-		Map<Integer, Integer> map = new TreeMap<>();
+		// 1) histogramme par taille en bits 
+		int[] freqBits = new int[33]; 	
+		int kMax = buildFreqBitsAndGetKMax(tab, freqBits);
+	    
+	    // 2) overflowCountByK[k] = nb de valeurs dont nbBits(val) > k
+		int[] overflowCountByK = buildOverflowCountByK(freqBits, kMax);
 		
-		int kOver = 0; // le k de la zone d'overflow (k max)
-		for (int val : tab) {
-			int nbBits = BitOps.nbBits(val); // le nb de bits mini pour représenter la val (3 -> nbBits = 2)
-			kOver = Math.max(kOver, nbBits);
-			map.put(nbBits, map.getOrDefault(nbBits, 0) + 1);
-		}
-		
-		this.kOver = kOver;
-		this.tabInputLength = tab.length;
-		int[] overflowCount = getOverflowCount(map, kOver);
-		int nbBitsTotalMini = Integer.MAX_VALUE;
+		// 3) recherche du meilleur k (brute-force 1..kMax)
+		int bestTotal = Integer.MAX_VALUE; 
 		int bestK = 1;
-		
-		for (Integer candK: map.keySet()) {
-		    int over = overflowCount[candK];
-		    int f = BitOps.nbBits(over-1);
-		    int w = 1 + Math.max(candK, f);
-		    int nbBitsTotal = tabInputLength*w + over * kOver;
+			
+		for (int candK = 1; candK <= kMax; candK++) {
+			int candOverflowCount = overflowCountByK[candK]; 									
+		    int candSlotLength = computeSlotLength(candK, candOverflowCount); 
+		    int total = inputLength * candSlotLength + candOverflowCount * kMax;
 		    
-		    if (nbBitsTotal < nbBitsTotalMini) {
-		        nbBitsTotalMini = nbBitsTotal;
+		    if (total < bestTotal) {
+		    	bestTotal = total;
 		        bestK = candK;
-		        this.w = w;
-		        this.over = over;
 		    }
 		}
 		
-		this.kPrime = bestK;
+		// 4) appliquer 
+		applyBest(kMax, bestK, overflowCountByK[bestK]);
 	}
 	
 	
+	/* Alloue les flux BASE/OVERFLOW */
+	private void allocateFlux(int inputLength, int overflowCount) {
+		this.base = new int[inputLength];
+		this.overflow = new int[overflowCount];
+	}
+	
+	
+	/* Crée les variantes de BitPacking via la factory */
+	private void createBitPacking() {
+		this.bpBase = BitPackingFactory.create(mode, base.length, slotLength);
+		this.bpOver = BitPackingFactory.create(mode, overflow.length, kOver);
+	}
+	
+	
+	/* Écrit les flux BASE/OVERFLOW puis délègue la compression aux variantes BitPacking */
 	@Override
 	public void compress(int[] tabInput) {
-		this.tabBase = new int[tabInputLength];
-		this.tabOverflow = new int[over];
+		allocateFlux(inputLength, overflowCount);
 		
-		int iOver = 0;
-		for (int i = 0; i < tabInputLength; i++) {
-			int val = tabInput[i];
+		int indexOverflow = 0;
+		for (int i = 0; i < inputLength; i++) {
+			int value = tabInput[i];
 			
-			if (BitOps.nbBits(val) <= kPrime) {
-				tabBase[i] = val;
+			if (BitOps.nbBits(value) <= k) {
+				// FLAG = 0 | value
+				base[i] = value;
 			} else {
-				tabBase[i] = iOver + (1 << (w - 1));
-				tabOverflow[iOver] = val;
-				iOver++;
+				// FLAG = 1 | index
+				base[i] = indexOverflow + (1 << (slotLength - 1));
+				
+				// écrire value dans le flux overflow
+				overflow[indexOverflow] = value;
+				indexOverflow++;
 			}
-			
 		}
 		
-		this.bpBase = BitPackingFactory.create(mode, tabBase.length, w);
-        bpBase.compress(tabBase);
-        
-        this.bpOver = BitPackingFactory.create(mode, tabOverflow.length, kOver);
-        bpOver.compress(tabOverflow);
+		createBitPacking();
 		
+        bpBase.compress(base);
+        bpOver.compress(overflow);
 	}
 
-	
+	/* get(i) : lit le slot "word" ; si FLAG=0 => valeur ; si FLAG=1 => OVERFLOW[index] */
 	@Override
 	public int get(int i) {
-	    int maskValue = (1 << (w - 1)) - 1;
+	    int maskValue = (1 << (slotLength - 1)) - 1;
 	    
 	    int word = bpBase.get(i);
-	    int flag = word >>> (w - 1);
+	    int flag = word >>> (slotLength - 1);
 	    int valueOrIndex = word & maskValue;
 
 	    if (flag == 0) {
@@ -147,85 +195,13 @@ public class BitPackingOverflow implements IPacking {
 	}
 
 
-	
+	/* boucle get pour decompresser tout le tableau */
 	@Override
 	public void decompress(int[] tabOutput) {
-		for (int i = 0; i < tabInputLength; i++) {
+		for (int i = 0; i < inputLength; i++) {
 			tabOutput[i] = get(i);
 		}
 
 	}
-
-	public int getK() {
-		return kPrime;
-	}
-	 
-	
-	/**
-	 * Affiche le contenu interne du BitPackingOverflow de façon lisible :
-	 * - paramètres (k', w, kOver, over)
-	 * - mots 32 bits pour la base et l’overflow
-	 * - valeurs logiques (flag|payload) dans la base
-	 * - valeurs brutes dans l’overflow
-	 */
-	public void printDebugView(int[] tabInput, int[] tabOutput) {
-	    System.out.println("\n===== BitPackingOverflow – Debug =====");
-	    System.out.println("Entrée originale      : " + arr(tabInput));
-	    System.out.println("Sortie décompressée   : " + arr(tabOutput));
-	    System.out.println("-------------------------------------------");
-	    System.out.println("k' (base)             : " + kPrime);
-	    System.out.println("kOver (overflow)      : " + kOver);
-	    System.out.println("w (slot base)         : " + w);
-	    System.out.println("#valeurs overflow     : " + over);
-	    System.out.println("-------------------------------------------");
-
-	    // --- Zone BASE ---
-	    if (bpBase != null) {
-	        System.out.println("\n--- Zone BASE ---");
-	        int[] baseWords = bpBase.getWords();
-	        System.out.println("Mots 32 bits (" + baseWords.length + "):");
-	        for (int i = 0; i < baseWords.length; i++) {
-	            String bin = String.format("%32s", Integer.toBinaryString(baseWords[i])).replace(' ', '0');
-	            System.out.printf("Word[%02d] = %s%n", i, bin);
-	        }
-
-	        System.out.println("Valeurs logiques (flag|payload):");
-	        for (int i = 0; i < tabInputLength; i++) {
-	            int word = bpBase.get(i);
-	            int flag = word >>> (w - 1);
-	            int payload = word & ((1 << (w - 1)) - 1);
-	            System.out.printf("Base[%02d] = flag:%d | payload:%d%n", i, flag, payload);
-	        }
-	    }
-
-	    // --- Zone OVERFLOW ---
-	    if (bpOver != null && over > 0) {
-	        System.out.println("\n--- Zone OVERFLOW ---");
-	        int[] overWords = bpOver.getWords();
-	        System.out.println("Mots 32 bits (" + overWords.length + "):");
-	        for (int i = 0; i < overWords.length; i++) {
-	            String bin = String.format("%32s", Integer.toBinaryString(overWords[i])).replace(' ', '0');
-	            System.out.printf("Word[%02d] = %s%n", i, bin);
-	        }
-
-	        System.out.println("Valeurs brutes (overflow):");
-	        for (int j = 0; j < over; j++) {
-	            System.out.printf("Over[%02d] = %d%n", j, bpOver.get(j));
-	        }
-	    }
-
-	    System.out.println("===========================================\n");
-	}
-
-	// -------- utilitaire privé pour afficher un tableau --------
-	private static String arr(int[] a) {
-	    StringBuilder sb = new StringBuilder("[");
-	    for (int i = 0; i < a.length; i++) {
-	        if (i > 0) sb.append(", ");
-	        sb.append(a[i]);
-	    }
-	    return sb.append("]").toString();
-	}
-
 
 }

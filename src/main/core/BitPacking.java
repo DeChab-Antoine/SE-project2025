@@ -6,7 +6,7 @@ package main.core;
  * 
  * Rôle : 
  *  - Définir le squelette de la compression/décompression
- *  - Calcul commun de bitWidth
+ *  - Calcul commun de k
  *  - Déléguer la lecture/écriture d'un "slot" aux classes filles (Overlap et WithoutOverlap) via readSlot/writeSlot
  *    
  * Contrats : 
@@ -19,29 +19,30 @@ package main.core;
 public abstract class BitPacking implements IPacking {
 	
 	protected static final int WORD_SIZE = 32; // Taille d'un mot (taille "Integer" = 32)
-	protected int bitWidth;					   // Nombre de bits par valeur (k) (1 <= bitWidth <= WORD_SIZE)
+	protected int k;					       // Nombre de bits par valeur (k) (1 <= k <= WORD_SIZE)
     protected int inputLength;				   // Nombre d'éléments à compresser (taille du tab "input") 
     protected int[] words;					   // Tableau compressée (composé de mots) (null avant compress, !null après) 
     
     
-    protected BitPacking(int bitWidth) {
-        this.bitWidth = bitWidth;
+    protected BitPacking(int k) {
+        this.k = k;
     }
     
     
     /**
-     * Calcule la largeur minimale en bits "bitWidth" nécessaire pour représenter toutes les valeurs d’entrée
+     * Calcule la largeur minimale en bits "k" nécessaire pour représenter toutes les valeurs d’entrée
      * Si l’entrée est vide, on retourne 1
      */
-    protected static int computeBitWidth(int[] input) {
+    protected static int computeK(int[] input) {
     	if (input.length == 0) return 1;
     	
-		int max = input[0];
+		int kMax = BitOps.nbBits(input[0]);
 		for (int val : input) {
-			max = Math.max(max, val);
+			int k = BitOps.nbBits(val);
+			if (k > kMax) kMax = k;
 		}
 		
-		return BitOps.nbBits(max);
+		return kMax;
 	}
     
     
@@ -51,7 +52,7 @@ public abstract class BitPacking implements IPacking {
 
 	@Override
 	public void compress(int[] input) {
-		this.words = createWords();
+		this.words = allocateWords();
 		
 		for (int i = 0; i < inputLength; i++) {
 			writeSlot(i, input[i]);
@@ -77,9 +78,9 @@ public abstract class BitPacking implements IPacking {
     //  Méthodes d'inspection (tests & debug)
     // -------------------------
 	
-	/** Getter de "bitWidth" */
-	public int getBitWidth() {
-		return bitWidth;
+	/** Getter de "k" */
+	public int getk() {
+		return k;
 	}
 
 	
@@ -100,7 +101,7 @@ public abstract class BitPacking implements IPacking {
     // --------------------------------------------
 	
 	/** Alloue le tableau words à la bonne taille */
-	protected abstract int[] createWords(); 
+	protected abstract int[] allocateWords(); 
 	
 	/** Écrit la valeur "value" dans le tab "words" au slot "index" */
     protected abstract void writeSlot(int i, int value);
