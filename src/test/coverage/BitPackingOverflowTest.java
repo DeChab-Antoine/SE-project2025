@@ -1,4 +1,4 @@
-package test;
+package test.coverage;
 
 import static org.junit.jupiter.api.Assertions.*;
 
