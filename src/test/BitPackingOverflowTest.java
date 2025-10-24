@@ -29,7 +29,7 @@ class BitPackingOverflowTest {
 	    assertArrayEquals(tab, out);
 
 	    // Affiche l’état interne
-	    c.printDebugView(tab, out);
+	    //c.printDebugView(tab, out);
 	}
 
 
@@ -54,7 +54,7 @@ class BitPackingOverflowTest {
         assertArrayEquals(tab, out);
         
      // Affiche l’état interne
-	    c.printDebugView(tab, out);
+	    //c.printDebugView(tab, out);
     }
 
 }

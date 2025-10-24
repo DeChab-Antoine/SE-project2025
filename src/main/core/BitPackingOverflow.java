@@ -203,5 +203,10 @@ public class BitPackingOverflow implements IPacking {
 		}
 
 	}
+	
+	
+	public int getK() {
+		return k;
+	}
 
 }

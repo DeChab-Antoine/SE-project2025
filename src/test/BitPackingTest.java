@@ -77,11 +77,11 @@ class BitPackingTest {
 			BitPackingWithoutOverlap bpWO = new BitPackingWithoutOverlap(tab);
 			structTest(bpWO, tab);
 			
-			int kO  = bpO.getBitWidth();;
+			int kO  = bpO.getK();;
 			int tabWordsLengthO = (n * kO + 31) / 32;
 			assertEquals(tabWordsLengthO,  bpO.getWordsLength());
 
-			int kWO  = bpWO.getBitWidth();
+			int kWO  = bpWO.getK();
 			int c = 32 / kWO;
 			int tabWordsLengthWO = (n + c - 1) / c;
 			assertEquals(tabWordsLengthWO, bpWO.getWordsLength());

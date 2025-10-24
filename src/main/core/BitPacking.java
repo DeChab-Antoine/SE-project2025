@@ -79,7 +79,7 @@ public abstract class BitPacking implements IPacking {
     // -------------------------
 	
 	/** Getter de "k" */
-	public int getk() {
+	public int getK() {
 		return k;
 	}
 
