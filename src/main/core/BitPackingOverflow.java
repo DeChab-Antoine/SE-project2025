@@ -27,8 +27,8 @@ public class BitPackingOverflow implements IPacking {
 	
 	
 	// --- Bit packers ---
-	private BitPacking bpBase;
-    private BitPacking bpOver; 
+	private IPacking bpBase;
+    private IPacking bpOver; 
 	
     
     // --- Flux bruts (avant bit-packing) ---
@@ -109,7 +109,7 @@ public class BitPackingOverflow implements IPacking {
 	 *  
 	 *  fixe k, kOver, slotLength, overflowCount
 	 */
-	public void computeOptimumK(int[] tab) {
+	public void computeK(int[] tab) {
 		// 1) histogramme par taille en bits 
 		int[] freqBits = new int[33]; 	
 		int kMax = buildFreqBitsAndGetKMax(tab, freqBits);
@@ -146,8 +146,8 @@ public class BitPackingOverflow implements IPacking {
 	
 	/* Crée les variantes de BitPacking via la factory */
 	private void createBitPacking() {
-		this.bpBase = BitPackingFactory.create(mode, base.length, slotLength);
-		this.bpOver = BitPackingFactory.create(mode, overflow.length, kOver);
+		this.bpBase = BitPackingFactory.createForOverflow(mode, base.length, slotLength);
+		this.bpOver = BitPackingFactory.createForOverflow(mode, overflow.length, kOver);
 	}
 	
 	
@@ -207,8 +207,21 @@ public class BitPackingOverflow implements IPacking {
 	}
 	
 	
+	@Override
 	public int getK() {
 		return k;
+	}
+
+
+	@Override
+	public int[] getWords() {
+		return base;
+	}
+
+
+	@Override
+	public int getWordsLength() {
+		return base.length;
 	}
 
 }

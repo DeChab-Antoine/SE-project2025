@@ -1,11 +1,32 @@
 package main.factory;
 
+import main.api.IPacking;
 import main.api.Mode;
 import main.core.*;
 
 public final class BitPackingFactory {
 	
-	public static BitPacking create(Mode mode, int length, int k) {
+	private BitPackingFactory() {} // empêche l’instanciation
+	
+	public static IPacking create(Mode mode, int[] input) {
+		switch(mode) {
+			case OVERLAP:
+				return new BitPackingOverlap(input);
+			case WITHOUT_OVERLAP:
+				return new BitPackingWithoutOverlap(input);
+			case OVERFLOW_OVERLAP:
+				return new BitPackingOverflow(Mode.OVERLAP, input);
+			case OVERFLOW_WITHOUT_OVERLAP:
+				return new BitPackingOverflow(Mode.WITHOUT_OVERLAP, input);
+			default:
+				return null;
+				
+		}
+		
+	}
+	
+	
+	public static IPacking createForOverflow(Mode mode, int length, int k) {
 		switch(mode) {
 			case OVERLAP:
 				return new BitPackingOverlap(length, k);

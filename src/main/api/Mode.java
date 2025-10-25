@@ -3,5 +3,7 @@ package main.api;
 public enum Mode {
 	OVERLAP, 
 	WITHOUT_OVERLAP,
+	OVERFLOW_OVERLAP,
+	OVERFLOW_WITHOUT_OVERLAP,
 	AUTO
 }

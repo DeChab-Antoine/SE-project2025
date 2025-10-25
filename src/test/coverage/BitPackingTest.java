@@ -5,26 +5,27 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import main.core.BitPacking;
-import main.core.BitPackingWithoutOverlap;
+import main.api.IPacking;
+import main.api.Mode;
+import main.factory.BitPackingFactory;
 
 class BitPackingTest {
 
-	private BitPackingWithoutOverlap bp;
+	private IPacking bp;
 	private int[] tab;
 	
 	@BeforeEach
 	void setUp() {
 		// Crée une nouvelle instance à chaque test = état neuf
 		tab = new int[] {13, 3, 9, 560, 6, 670, 4, 12};
-        bp = new BitPackingWithoutOverlap(tab);
+        bp = BitPackingFactory.create(Mode.WITHOUT_OVERLAP, tab);
 	}
 	
 	
 	@Test
 	void testComputeKEmpty() {
 		int[] empty = {};
-		BitPacking bpEmpty = new BitPackingWithoutOverlap(empty);
+		IPacking bpEmpty = BitPackingFactory.create(Mode.WITHOUT_OVERLAP, empty);
 		
 		assertEquals(1, bpEmpty.getK());
 	}

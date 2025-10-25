@@ -20,14 +20,14 @@ public class BitPackingOverlap extends BitPacking {
 	
     /** Chemin AUTO : calcule k à partir de "input" */
 	public BitPackingOverlap(int[] input) {
-		super(computeK(input));
+		computeK(input);
 		this.inputLength = input.length;
 	}
 	
 	
     /** Chemin FIXED : k imposés (Overflow) */
 	public BitPackingOverlap(int length, int k) {
-		super(k);
+		this.k = k;
 		this.inputLength = length;
 	}
 

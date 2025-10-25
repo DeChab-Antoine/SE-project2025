@@ -27,17 +27,17 @@ public abstract class BitPacking implements IPacking {
     protected int[] words;					   // Tableau compressée (composé de mots) (null avant compress, !null après) 
     
     
-    protected BitPacking(int k) {
-        this.k = k;
-    }
+    protected BitPacking() {
+    	
+    } 
     
     
     /**
      * Calcule la largeur minimale en bits "k" nécessaire pour représenter toutes les valeurs d’entrée
      * Si l’entrée est vide, on retourne 1
      */
-    protected static int computeK(int[] input) {
-    	if (input.length == 0) return 1;
+    public void computeK(int[] input) {
+    	if (input.length == 0) this.k = 1;
     	
 		int kMax = BitOps.nbBits(input[0]);
 		for (int val : input) {
@@ -45,7 +45,7 @@ public abstract class BitPacking implements IPacking {
 			if (k > kMax) kMax = k;
 		}
 		
-		return kMax;
+		this.k = kMax;
 	}
     
     

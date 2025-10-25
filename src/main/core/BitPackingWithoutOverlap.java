@@ -21,14 +21,14 @@ public class BitPackingWithoutOverlap extends BitPacking {
 	
     /** Chemin AUTO : calcule k à partir de "input" */
     public BitPackingWithoutOverlap(int[] tabInput) {
-        super(computeK(tabInput));
+        computeK(tabInput);
         this.inputLength = tabInput.length;
         this.nbSlotPerWord = WORD_SIZE / k;
     }
 
     /** Chemin FIXED : k imposés (Overflow). */
     public BitPackingWithoutOverlap(int length, int k) {
-        super(k); 
+        this.k = k; 
         this.inputLength = length;
         this.nbSlotPerWord = WORD_SIZE / k;
     }

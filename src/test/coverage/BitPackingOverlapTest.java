@@ -5,20 +5,21 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import main.api.IPacking;
 import main.api.Mode;
 import main.core.BitPackingOverflow;
-import main.core.BitPackingOverlap;
+import main.factory.BitPackingFactory;
 
 class BitPackingOverlapTest {
 
-	private BitPackingOverlap bp;
+	private IPacking bp;
 	private int[] tab;
 	
 	@BeforeEach
 	void setUp() {
 		// Crée une nouvelle instance à chaque test = état neuf
 		tab = new int[] {13, 3, 9, 560, 6, 670, 4, 12};
-        bp = new BitPackingOverlap(tab);
+		bp = BitPackingFactory.create(Mode.OVERLAP, tab);
 	}
 	
 	@Test
@@ -30,7 +31,7 @@ class BitPackingOverlapTest {
 	@Test
 	void testConstructorOverflow() {
 		BitPackingOverflow bpOver = new BitPackingOverflow(Mode.OVERLAP, tab);
-		bpOver.computeOptimumK(tab);
+		bpOver.computeK(tab);
 		bpOver.compress(tab);
 		
 		assertEquals(4, bpOver.getK());

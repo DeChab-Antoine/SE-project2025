@@ -11,6 +11,8 @@ package main.utils;
 
 public class BitOps {
 	
+	private BitOps() {} // empêche l’instanciation
+	
 	/** Retourne un masque de "k" bits à 1 (ex: k=3 → 0b111) */
 	public static int mask(int k) {
         return (1 << k) - 1;
