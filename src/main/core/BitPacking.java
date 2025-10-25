@@ -37,7 +37,10 @@ public abstract class BitPacking implements IPacking {
      * Si l’entrée est vide, on retourne 1
      */
     public void computeK(int[] input) {
-    	if (input.length == 0) this.k = 1;
+    	if (input.length == 0) {
+    		this.k = 1;
+    		return;
+    	}
     	
 		int kMax = BitOps.nbBits(input[0]);
 		for (int val : input) {
@@ -90,12 +93,6 @@ public abstract class BitPacking implements IPacking {
 	/** Getter de "words" */
 	public int[] getWords() {
 	    return words;
-	}
-	
-	
-	/** Retourne le nombre de mots compressés */
-	public int getWordsLength() {
-		return words.length;
 	}
 	
 	

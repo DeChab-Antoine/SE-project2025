@@ -9,7 +9,5 @@ public interface IPacking {
 	
     int getK();
 	int[] getWords();
-	int getWordsLength();
-	void computeK(int[] tab);
-    
+	void computeK(int[] tab);    
 }

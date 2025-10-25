@@ -18,6 +18,9 @@ public final class BitPackingFactory {
 				return new BitPackingOverflow(Mode.OVERLAP, input);
 			case OVERFLOW_WITHOUT_OVERLAP:
 				return new BitPackingOverflow(Mode.WITHOUT_OVERLAP, input);
+			case AUTO:
+				// version naïve pour l'instant
+				return new BitPackingOverflow(Mode.WITHOUT_OVERLAP, input);
 			default:
 				return null;
 				

@@ -19,6 +19,8 @@ class BitPackingTest {
 		// Crée une nouvelle instance à chaque test = état neuf
 		tab = new int[] {13, 3, 9, 560, 6, 670, 4, 12};
         bp = BitPackingFactory.create(Mode.WITHOUT_OVERLAP, tab);
+        
+		bp.compress(tab);
 	}
 	
 	
@@ -33,7 +35,6 @@ class BitPackingTest {
 	
 	@Test
 	void testCompress() {
-		bp.compress(tab);
 		int[] words = new int[] {9440269, 702552624, 12292};
 		
 		assertArrayEquals(words, bp.getWords());
@@ -42,27 +43,16 @@ class BitPackingTest {
 	
 	@Test
 	void testGet() {
-		bp.compress(tab);
-		
 		assertEquals(13, bp.get(0));
 	}
 	
 	
 	@Test
 	void testDecompress() {
-		bp.compress(tab);
 		int[] out = new int[tab.length];
 		bp.decompress(out);
 		
 		assertArrayEquals(tab, out);
 	}
 	
-	
-	@Test
-	void testGetWordsLength() {
-		bp.compress(tab);
-		
-		assertEquals(3, bp.getWordsLength());
-	}
-
 }

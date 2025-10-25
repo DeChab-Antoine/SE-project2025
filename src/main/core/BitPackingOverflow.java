@@ -215,13 +215,7 @@ public class BitPackingOverflow implements IPacking {
 
 	@Override
 	public int[] getWords() {
-		return base;
+		return bpBase.getWords();
 	}
-
-
-	@Override
-	public int getWordsLength() {
-		return base.length;
-	}
-
+	
 }
