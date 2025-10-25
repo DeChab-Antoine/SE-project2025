@@ -1,7 +1,7 @@
 package main.factory;
 
+import main.api.Mode;
 import main.core.*;
-import main.model.Mode;
 
 public final class BitPackingFactory {
 	

@@ -1,5 +1,8 @@
 package main.core;
 
+import main.api.IPacking;
+import main.utils.BitOps;
+
 /**
  * 
  * Abstraction commune (Template Method) pour les variantes de Bit Packing.

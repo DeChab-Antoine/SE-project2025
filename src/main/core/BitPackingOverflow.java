@@ -1,7 +1,9 @@
 package main.core;
 
+import main.api.IPacking;
+import main.api.Mode;
 import main.factory.BitPackingFactory;
-import main.model.Mode;
+import main.utils.BitOps;
 
 /**
  * Variante BitPacking avec overflow (base + zone d’overflow)

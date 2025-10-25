@@ -5,10 +5,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import main.api.Mode;
 import main.core.BitPackingOverflow;
 import main.core.BitPackingOverlap;
-import main.core.BitPackingWithoutOverlap;
-import main.model.Mode;
 
 class BitPackingOverlapTest {
 

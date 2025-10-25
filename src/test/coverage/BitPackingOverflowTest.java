@@ -7,7 +7,7 @@ import java.util.Random;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import main.model.Mode;
+import main.api.Mode;
 import main.core.BitPackingOverflow;
 
 

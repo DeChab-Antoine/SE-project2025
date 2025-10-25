@@ -6,9 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import main.core.BitPacking;
-import main.core.BitPackingOverflow;
 import main.core.BitPackingWithoutOverlap;
-import main.model.Mode;
 
 class BitPackingTest {
 

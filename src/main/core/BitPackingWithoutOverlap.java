@@ -1,5 +1,7 @@
 package main.core;
 
+import main.utils.BitOps;
+
 /**
  * Variante BitPacking sans chevauchement (without overlap)
  *
