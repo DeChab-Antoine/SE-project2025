@@ -44,6 +44,8 @@ public class BitPackingOverflow implements IPacking {
 	public BitPackingOverflow(Mode mode, int[] input) {
 		this.mode = mode;
 		this.inputLength = input.length;
+		
+		computeK(input);
 	}
 	
 	
@@ -83,7 +85,7 @@ public class BitPackingOverflow implements IPacking {
 	
 	/** Calculer la taille du slot pour un k et un nombre de valeur en overflow "over" */
 	private static int computeSlotLength(int k, int over) {
-		int f = BitOps.nbBits(over - 1); // nb bits pour coder les indices des valeurs en overflow
+		int f = (over == 0) ? k : BitOps.nbBits(over - 1); // nb bits pour coder les indices des valeurs en overflow
 		int slotLength = 1 + Math.max(k, f);
 		
 		return slotLength;
@@ -109,6 +111,7 @@ public class BitPackingOverflow implements IPacking {
 	 *  
 	 *  fixe k, kOver, slotLength, overflowCount
 	 */
+	
 	public void computeK(int[] tab) {
 		// 1) histogramme par taille en bits 
 		int[] freqBits = new int[33]; 	
@@ -182,7 +185,7 @@ public class BitPackingOverflow implements IPacking {
 	/* get(i) : lit le slot "word" ; si FLAG=0 => valeur ; si FLAG=1 => OVERFLOW[index] */
 	@Override
 	public int get(int i) {
-	    int maskValue = (1 << (slotLength - 1)) - 1;
+	    int maskValue = BitOps.mask(slotLength - 1);
 	    
 	    int word = bpBase.get(i);
 	    int flag = word >>> (slotLength - 1);

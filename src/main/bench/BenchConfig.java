@@ -53,7 +53,7 @@ public final class BenchConfig {
     	this.warmupIterations = 5;
     	this.measureIterations = 20;
     	
-    	this.sizes = new int[] {1_000, 1_000_000, 1_000_000_000};
+    	this.sizes = new int[] {1_000, 100_000, 10_000_000};
     	this.modes = List.of(Mode.WITHOUT_OVERLAP, Mode.OVERLAP, Mode.OVERFLOW_WITHOUT_OVERLAP, Mode.OVERFLOW_OVERLAP);
     	
     	this.bits = new ArrayList<Integer>();
