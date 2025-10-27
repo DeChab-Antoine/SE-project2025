@@ -247,11 +247,12 @@ sinon k= 10 -> 10\*8 = 80 bits > 60 donc on doit bien choisir la zone de débord
 
 
 
+chose à faire:
 
-
-
-
-
+- améliorer le bench
+- automatisation création configs
+- affichage graphiques (python)
+- améliorer la factory
 
 
 
