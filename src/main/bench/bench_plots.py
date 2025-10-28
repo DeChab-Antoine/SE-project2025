@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Visualisation des seuils de rentabilité de la compression
 - X: Temps total (ms)
@@ -7,21 +6,27 @@ Visualisation des seuils de rentabilité de la compression
 - un point d'intersection = seuil de rentabilité
 """
 
+import argparse
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from math import ceil
 
 # =============================
-# Paramètres facilement modifiables
+# CLI
 # =============================
-CSV_PATH = "../../../results/all_results.csv"
-MTU_BITS = 12_000      
-SELECT_MODES = ["WITHOUT_OVERLAP", "OVERLAP", "OVERFLOW_WITHOUT_OVERLAP", "OVERFLOW_OVERLAP"]
-SELECT_FILES = ["WITHOUT_OVERLAP", "OVERLAP", "OVERFLOW", "LARGE", "SMALL"]
 
-SELECT_INPUT = "small" # nom du fichier d'entrée
-SELECT_MODE = "OVERLAP" # mode de compression
+def parse_args():
+    p = argparse.ArgumentParser(description="Affiche le graphique seuil de rentabilité")
+    p.add_argument("--mode",  type=str, required=False,     help="Mode: OVERLAP | WITHOUT_OVERLAP | OVERFLOW_OVERLAP | OVERFLOW_WITHOUT_OVERLAP")
+    p.add_argument("--input", type=str, required=False,     help="Jeu d'entrée: small | large | ...")
+    return p.parse_args()
+
+args = parse_args()
+
+CSV_PATH = "results/all_results.csv"
+SELECT_MODE = args.mode.upper()
+SELECT_INPUT = args.input.lower()
 
 # =============================
 # Lecture et filtrage du CSV

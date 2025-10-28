@@ -49,7 +49,7 @@ public final class BenchRunner {
                 int measureIt = cfg.getMeasureIterations();
 
                 // info de mon réseau
-                final long LATENCY_NS = 70_000;
+                final long LATENCY_NS = 12_000_000;
                 final long MTU = 12_000; 
 
                 DataGenerator dataGen = new DataGenerator(42);
@@ -172,10 +172,6 @@ public final class BenchRunner {
     
     private static double toMilliSecond(double v) {
     	return v/1e6;
-    }
-    
-    private static double toSecond(double v) {
-    	return v/1e9;
     }
     
 }

@@ -245,14 +245,11 @@ Donc le cas retenu est k = 4 si zone de débordement
 sinon k= 10 -> 10\*8 = 80 bits > 60 donc on doit bien choisir la zone de débordement
 
 
+Librairies requises :
 
-
-chose à faire:
-
-- améliorer le bench
-- automatisation création configs
-- affichage graphiques (python)
-- améliorer la factory
+pip install pandas
+pip install numpy
+pip install matplotlib
 
 
 
