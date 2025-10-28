@@ -24,13 +24,14 @@ def parse_args():
 
 args = parse_args()
 
-CSV_PATH = "results/all_results.csv"
+CSV_PATH = "results/results.csv"
 SELECT_MODE = args.mode.upper()
 SELECT_INPUT = args.input.lower()
 
 # =============================
 # Lecture et filtrage du CSV
 # =============================
+
 df = pd.read_csv(CSV_PATH)
 
 # Filtrage sur l’entrée et le mode choisis
@@ -39,7 +40,7 @@ row = df[(df["input"] == SELECT_INPUT) & (df["mode"] == SELECT_MODE)]
 if row.empty:
     raise ValueError(f"Aucune ligne trouvée pour input='{SELECT_INPUT}' et mode='{SELECT_MODE}'")
 
-# Extraction des valeurs scalaires
+# Extraction des valeurs
 tComp_ms    = row["tComp_ms"].iloc[0]
 tDecomp_ms  = row["tDecomp_ms"].iloc[0]
 nO          = row["nO"].iloc[0]
@@ -62,6 +63,7 @@ tTotalNoComp = nO * latences_ms
 # =============================
 # Affichage graphique
 # =============================
+
 plt.figure(figsize=(8, 6))
 plt.plot(latences_ms, tTotalNoComp, label="Sans compression", lw=2, color="red")
 plt.plot(latences_ms, tTotalComp, label="Avec compression", lw=2, color="blue")
@@ -80,11 +82,13 @@ plt.show()
 # =============================
 # Résumé console
 # =============================
+
 print(f"\n=== Résumé pour input={SELECT_INPUT}, mode={SELECT_MODE} ===")
 print(f"Temps compression : {tComp_ms:.2f} ms")
 print(f"Temps décompression : {tDecomp_ms:.2f} ms")
 print(f"nO (non compressé) : {nO}")
 print(f"nC (compressé)     : {nC}")
+
 if lat_threshold:
     print(f"Seuil de rentabilité = {lat_threshold:.2f} ms")
 else:

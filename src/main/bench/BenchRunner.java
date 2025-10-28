@@ -19,7 +19,7 @@ public final class BenchRunner {
 
         // --- UNIQUE fichier de résultats pour toutes les configs ---
         new File("results").mkdirs();
-        String resultPath = "results/all_results.csv";
+        String resultPath = "results/results.csv";
 
         try (FileWriter fw = new FileWriter(resultPath, false)) {
             // En-tête avec le nom du fichier d'entrée en première colonne
@@ -117,13 +117,13 @@ public final class BenchRunner {
                         double tTotalComp = toMilliSecond(tComp + tDecomp + nC * LATENCY_NS);
                         double tTotalNonComp = toMilliSecond(n0 * LATENCY_NS);
 
-                        // --- Décisions ---
+                        // --- Décision ---
                         boolean gainT = (tTotalComp < tTotalNonComp);
                         
                         // --- Latence t à partir du quel la transmission devient intéressante ---
                         int latT = (int) Math.round((tComp + tDecomp) / (n0 - nC));
 
-                        // Log console court (inchangé)
+                        // --- Log console ---
                         System.out.printf(Locale.US,
                             "[OK] mode=%-25s | comp=%8.3f ms, decomp=%8.3f ms, get=%8.3f ns | " +
                             		"T0=%8.3f ms Tc=%8.3f ms | gainT=%s | latT=%8d ns%n",
@@ -134,7 +134,7 @@ public final class BenchRunner {
                             latT
                         );
 
-                        // --- CSV (ajout "input" en première colonne) ---
+                        // --- écrit dans le fichier CSV ---
                         fw.write(String.join(",",
                             configFile.getName(),
                             mode.name(),

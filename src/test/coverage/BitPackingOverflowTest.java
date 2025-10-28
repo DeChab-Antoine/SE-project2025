@@ -19,7 +19,7 @@ class BitPackingOverflowTest {
 	void setUp() {
 		// Crée une nouvelle instance à chaque test = état neuf
 		tab = new int[] {13, 3, 9, 560, 6, 670, 4, 12};
-        bp = BitPackingFactory.create(Mode.AUTO, tab);
+        bp = BitPackingFactory.create(Mode.OVERFLOW_WITHOUT_OVERLAP, tab);
         
         bp.computeK(tab);
 		bp.compress(tab);

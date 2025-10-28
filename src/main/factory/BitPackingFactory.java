@@ -18,11 +18,8 @@ public final class BitPackingFactory {
 				return new BitPackingOverflow(Mode.OVERLAP, input);
 			case OVERFLOW_WITHOUT_OVERLAP:
 				return new BitPackingOverflow(Mode.WITHOUT_OVERLAP, input);
-			case AUTO:
-				// version naïve pour l'instant
-				return new BitPackingOverflow(Mode.WITHOUT_OVERLAP, input);
 			default:
-				return null;
+				throw new IllegalArgumentException("Unknown mode: " + mode);
 				
 		}
 		
@@ -36,9 +33,7 @@ public final class BitPackingFactory {
 			case WITHOUT_OVERLAP:
 				return new BitPackingWithoutOverlap(length, k);
 			default:
-				// version naïve pour l'instant
-				if (length < 1000) return new BitPackingWithoutOverlap(length, k);
-				else return new BitPackingOverlap(length, k);
+				throw new IllegalArgumentException("Unknown mode: " + mode);
 				
 		}
 		
