@@ -1,6 +1,7 @@
 # BitPacking – Système de compression d’entiers
 ## Génie Logiciel (Master 1 Informatique – UCA 2025)
 Auteur : Antoine de Chabannes
+
 Date de fin : 02/11/2025
 
 ### Description
@@ -22,20 +23,21 @@ Le projet mesure donc le seuil de rentabilité à partir duquel la compression d
 7. Observer le graphique spécifique (OVERLAP, small)
    
 ### Explication des options:
+```
   -h, --help     show this help message and exit
   --bench        lance le benchmark et génère le CSV
   --plot         Afficher un graphique obligatoirement avec --mode et --input
   --all          Génère les graphiques pour toutes les configurations
   --mode MODE    Mode de compression (OVERLAP, WITHOUT_OVERLAP, OVERFLOW_OVERLAP, OVERFLOW_WITHOUT_OVERLAP)
   --input INPUT  Nom du fichier d'entrée (small, large, overlap, without_overlap, overflow)
-
+```
 ### Analyse du graphique
 
   - les courbes reflètent le temps total de la transmission sans (bleu) / avec (rouge) compression en fonction de la latence
   - la ligne à pointillé verte : latence où la compression devient rentable
 
 ### Structure du projet
-
+```
 SE-project2025
  ├── src/
  │    ├── main/
@@ -55,7 +57,7 @@ SE-project2025
  ├── bin/                  => Classes compilées (générées automatiquement).
  ├── target/               => Dossier de sortie Maven.
  └── pom.xml               => Fichier de configuration Maven du projet.
-
+```
 ### Prérequis
 - Python 3.10+  
 - Java 17+  
