@@ -54,8 +54,6 @@ SE-project2025
  ├── results/              => Dossier où sont enregistrés les fichiers de résultats (CSV, graphiques).
  ├── ressources/           => Fichiers d’entrée
  ├── docs/                 => Documentation technique et rapport du projet.
- ├── bin/                  => Classes compilées (générées automatiquement).
- ├── target/               => Dossier de sortie Maven.
  └── pom.xml               => Fichier de configuration Maven du projet.
 ```
 ### Prérequis
