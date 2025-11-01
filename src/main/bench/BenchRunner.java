@@ -110,8 +110,8 @@ public final class BenchRunner {
                         long Scbits = ((long) bp.getWords().length) * 32L; // compressé
                         
                         // --- Packets ---
-                        double n0 = Math.ceil(S0bits / MTU); 
-                        double nC = Math.ceil(Scbits / MTU);
+                        double n0 = Math.ceil(S0bits / (double) MTU); 
+                        double nC = Math.ceil(Scbits / (double) MTU);
 
                         // --- Temps bout-en-bout (en s) ---
                         double tTotalComp = toMilliSecond(tComp + tDecomp + nC * LATENCY_NS);
