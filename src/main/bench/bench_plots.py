@@ -20,6 +20,7 @@ def parse_args():
     p = argparse.ArgumentParser(description="Affiche le graphique seuil de rentabilité")
     p.add_argument("--mode",  type=str, required=False,     help="Mode: OVERLAP | WITHOUT_OVERLAP | OVERFLOW_OVERLAP | OVERFLOW_WITHOUT_OVERLAP")
     p.add_argument("--input", type=str, required=False,     help="Jeu d'entrée: small | large | ...")
+    p.add_argument("--save", action="store_true", help="Génére tous les graphiques")
     return p.parse_args()
 
 args = parse_args()
@@ -27,6 +28,9 @@ args = parse_args()
 CSV_PATH = "results/results.csv"
 SELECT_MODE = args.mode.upper()
 SELECT_INPUT = args.input.lower()
+save = False
+if args.save:
+    save = True
 
 # =============================
 # Lecture et filtrage du CSV
@@ -45,16 +49,30 @@ tComp_ms    = row["tComp_ms"].iloc[0]
 tDecomp_ms  = row["tDecomp_ms"].iloc[0]
 nO          = row["nO"].iloc[0]
 nC          = row["nC"].iloc[0]
+taille      = row["size"].iloc[0]
 
 # =============================
 # Calcul des temps totaux
 # =============================
 
 # Calcul du seuil de latence (en ms)
-lat_threshold = (tComp_ms + tDecomp_ms) / (nO - nC)
+den = float(nO - nC)
+
+if den <= 0:
+    # compression non rentable structurellement (aucun gain d'unités transmises)
+    lat_threshold = float("inf")
+else:
+    lat_threshold = (tComp_ms + tDecomp_ms) / den
+
+if (lat_threshold < 0 or lat_threshold > 50000):
+    echelle = 200000
+if (lat_threshold <= 50000):
+    echelle = 100000
+if (lat_threshold <= 30000):
+    echelle = 10000
 
 # Plage de latences à tester (en ms)
-latences_ms = np.linspace(0, 4*lat_threshold, 200)
+latences_ms = np.linspace(0, echelle, echelle//1000)
 
 # Calcul des temps totaux pour chaque latence
 tTotalComp = tComp_ms + tDecomp_ms + nC * latences_ms
@@ -73,11 +91,17 @@ if lat_threshold:
 
 plt.xlabel("Latence réseau (ms)")
 plt.ylabel("Temps total de transmission (ms)")
-plt.title(f"Seuil de rentabilité - Input: {SELECT_INPUT}, Mode: {SELECT_MODE}")
+plt.title(f"Input: {SELECT_INPUT}, Mode: {SELECT_MODE}, Taille: {taille}")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-plt.show()
+
+if(save):
+    filename = f"results/bench_plots_{SELECT_INPUT}_{SELECT_MODE}.png"
+    plt.savefig(filename)
+    print(f"[OK] Graphique sauvegardé sous '{filename}'")
+else:
+    plt.show()
 
 # =============================
 # Résumé console

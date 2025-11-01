@@ -252,6 +252,15 @@ pip install numpy
 pip install matplotlib
 
 
+à faire :
+
+une documentation en markdown expliquant comment utiliser le programme
+test unitaires (si temps)
+diagramme UML (mini)
+
+
+
+
 
 
 

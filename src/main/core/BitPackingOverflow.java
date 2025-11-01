@@ -112,10 +112,11 @@ public class BitPackingOverflow implements IPacking {
 	 *  fixe k, kOver, slotLength, overflowCount
 	 */
 	
-	public void computeK(int[] tab) {
+	@Override
+	public void computeK(int[] input) {
 		// 1) histogramme par taille en bits 
 		int[] freqBits = new int[33]; 	
-		int kMax = buildFreqBitsAndGetKMax(tab, freqBits);
+		int kMax = buildFreqBitsAndGetKMax(input, freqBits);
 	    
 	    // 2) overflowCountByK[k] = nb de valeurs dont nbBits(val) > k
 		int[] overflowCountByK = buildOverflowCountByK(freqBits, kMax);
@@ -156,12 +157,12 @@ public class BitPackingOverflow implements IPacking {
 	
 	/* Écrit les flux BASE/OVERFLOW puis délègue la compression aux variantes BitPacking */
 	@Override
-	public void compress(int[] tabInput) {
+	public void compress(int[] input) {
 		allocateFlux(inputLength, overflowCount);
 		
 		int indexOverflow = 0;
 		for (int i = 0; i < inputLength; i++) {
-			int value = tabInput[i];
+			int value = input[i];
 			
 			if (BitOps.nbBits(value) <= k) {
 				// FLAG = 0 | value
@@ -202,9 +203,9 @@ public class BitPackingOverflow implements IPacking {
 
 	/* boucle get pour decompresser tout le tableau */
 	@Override
-	public void decompress(int[] tabOutput) {
+	public void decompress(int[] output) {
 		for (int i = 0; i < inputLength; i++) {
-			tabOutput[i] = get(i);
+			output[i] = get(i);
 		}
 
 	}

@@ -32,10 +32,15 @@ public abstract class BitPacking implements IPacking {
     } 
     
     
+    // -------------------------
+    //  Méthodes du contrat API
+    // -------------------------
+
     /**
      * Calcule la largeur minimale en bits "k" nécessaire pour représenter toutes les valeurs d’entrée
      * Si l’entrée est vide, on retourne 1
      */
+    @Override
     public void computeK(int[] input) {
     	if (input.length == 0) {
     		this.k = 1;
@@ -52,10 +57,6 @@ public abstract class BitPacking implements IPacking {
 	}
     
     
-    // -------------------------
-    //  Méthodes du contrat API
-    // -------------------------
-
 	@Override
 	public void compress(int[] input) {
 		this.words = allocateWords();
@@ -85,12 +86,14 @@ public abstract class BitPacking implements IPacking {
     // -------------------------
 	
 	/** Getter de "k" */
+	@Override
 	public int getK() {
 		return k;
 	}
 
 	
 	/** Getter de "words" */
+	@Override
 	public int[] getWords() {
 	    return words;
 	}

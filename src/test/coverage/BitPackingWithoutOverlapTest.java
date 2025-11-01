@@ -40,19 +40,22 @@ class BitPackingWithoutOverlapTest {
 	
 	
 	@Test
-	void testAllocateWords() {int len = bp.getWords().length;
+	void testAllocateWords() {
+		int len = bp.getWords().length;
 		
 		assertEquals(3, len);
 	}
 	
 	@Test
-	void testWriteSlot() {int[] words = new int[] {9440269, 702552624, 12292};
+	void testWriteSlot() {
+		int[] words = new int[] {9440269, 702552624, 12292};
 		
 		assertArrayEquals(words, bp.getWords());
 	}
 	
 	@Test
-	void testReadSlot() {assertEquals(13, bp.get(0));
+	void testReadSlot() {
+		assertEquals(13, bp.get(0));
 	}
 
 }

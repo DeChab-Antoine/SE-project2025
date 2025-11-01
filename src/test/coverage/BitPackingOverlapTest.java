@@ -32,7 +32,7 @@ class BitPackingOverlapTest {
 	
 	@Test
 	void testConstructorOverflow() {
-		BitPackingOverflow bpOver = new BitPackingOverflow(Mode.OVERLAP, tab);
+		IPacking bpOver = BitPackingFactory.create(Mode.OVERFLOW_OVERLAP, tab);
 		bpOver.computeK(tab);
 		bpOver.compress(tab);
 		
