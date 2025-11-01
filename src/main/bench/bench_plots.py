@@ -68,8 +68,8 @@ if (lat_threshold < 0 or lat_threshold > 50000):
     echelle = 200000
 if (lat_threshold <= 50000):
     echelle = 100000
-if (lat_threshold <= 30000):
-    echelle = 10000
+if (lat_threshold <= 20000):
+    echelle = 30000
 
 # Plage de latences à tester (en ms)
 latences_ms = np.linspace(0, echelle, echelle//1000)
