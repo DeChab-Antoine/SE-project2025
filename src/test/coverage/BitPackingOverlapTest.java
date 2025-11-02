@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import main.api.IPacking;
 import main.api.Mode;
-import main.core.BitPackingOverflow;
 import main.factory.BitPackingFactory;
 
 class BitPackingOverlapTest {
