@@ -16,11 +16,12 @@ Le projet mesure donc le seuil de rentabilité à partir duquel la compression d
 
 1. Cloner le dépôt : git clone https://github.com/DeChab-Antoine/SE-project2025.git
 2. Se mettre à la racine du projet : cd SE-project2025
-3. Compiler le projet (partie java) : javac -d target/classes src/main/**/*.java
-4. Lancer : python src/main/main.py --bench --all
-5. Observer les graphiques dans le dossier results
-6. Lancer : python src/main/main.py --plot --mode OVERLAP --input small
-7. Observer le graphique spécifique (OVERLAP, small)
+3. Compiler le projet (partie java) : javac -d target/classes (Get-ChildItem -Recurse -Filter *.java src/main | ForEach-Object { $_.FullName })
+4. Installer les biblio (si non installé) : pip install pandas / pip install matplotlib
+5. Lancer : python src/main/main.py --bench --all
+6. Observer les graphiques dans le dossier results
+7. Lancer : python src/main/main.py --plot --mode OVERLAP --input small
+8. Observer le graphique spécifique (OVERLAP, small)
    
 ### Explication des options:
 ```
